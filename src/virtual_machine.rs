@@ -71,6 +71,7 @@ impl VirtualMachine{
     }
 
     pub fn fetch(&self) -> &(Instructions, Vec<u32>){
+        println!("IP: {}", self.registers.get_instruction_pointer());
         &self.program[self.registers.get_instruction_pointer()]
     }
 
@@ -101,15 +102,45 @@ impl VirtualMachine{
                 self.registers.set_register(params[0] as usize, self.registers.get_register(params[1] as usize));
             },
             Instructions::IF => {
-                if self.registers.get_register(params[0] as usize) == params[1] as i32{
-                    let final_value = params[3] << 8 | params[4];
-                    self.registers.set_instruction_pointer(final_value as usize);
+                let value = params[1] << 24 | params[2] << 16 | params[3] << 8 | params[4];
+                if self.registers.get_register(params[0] as usize) == value as i32{
+                    let mut final_value = (params[5] << 8 | params[6]) as usize;
+
+                    let mut param_count = 0;
+                    let mut i = 0;
+                    for val in self.program.clone(){
+                        param_count += val.1.len();
+                        i += 1;
+                        i += val.1.len();
+                        if i == final_value as usize{
+                            break;
+                        }
+                    }
+                    
+                    final_value -= param_count;
+                    
+                    self.registers.set_instruction_pointer(final_value);
                 }
             },
             Instructions::IFN => {
-                if self.registers.get_register(params[0] as usize) != params[1] as i32{
-                    let final_value = params[3] << 8 | params[4];
-                    self.registers.set_instruction_pointer(final_value as usize);
+                let value = params[1] << 24 | params[2] << 16 | params[3] << 8 | params[4];
+                if self.registers.get_register(params[0] as usize) != value as i32{
+                    let mut final_value = (params[5] << 8 | params[6]) as usize;
+
+                    let mut param_count = 0;
+                    let mut i = 0;
+                    for val in self.program.clone(){
+                        param_count += val.1.len();
+                        i += 1;
+                        i += val.1.len();
+                        if i == final_value as usize{
+                            break;
+                        }
+                    }
+                    
+                    final_value -= param_count;
+                    
+                    self.registers.set_instruction_pointer(final_value);
                 }
             },
             Instructions::JMP => {
