@@ -247,7 +247,22 @@ impl VirtualMachine{
             },
             Instructions::JNZ => {
                 if self.registers.get_register(params[0] as usize) != 0{
-                    self.registers.set_instruction_pointer(params[1] as usize);
+                    let mut final_value = (params[1] << 8 | params[2]) as usize;
+
+                    let mut param_count = 0;
+                    let mut i = 0;
+                    for val in self.program.clone(){
+                        param_count += val.1.len();
+                        i += 1;
+                        i += val.1.len();
+                        if i == final_value as usize{
+                            break;
+                        }
+                    }
+                    
+                    final_value -= param_count;
+                    
+                    self.registers.set_instruction_pointer(final_value);
                 }
             },
         }
