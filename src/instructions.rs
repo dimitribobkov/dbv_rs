@@ -58,7 +58,7 @@ impl<T> From<T> for Instructions where T: Into<i32>{
             0xC => Self::DIV,
             0xD => Self::ADDI,
             0xE => Self::SUBI,
-            0x1F => Self::MULI,
+            0xF => Self::MULI,
 
             0x10 => Self::DIVI,
             0x11 => Self::AND,
@@ -82,8 +82,8 @@ impl<T> From<T> for Instructions where T: Into<i32>{
         }
     }
 }
-                        // Instruction, param count length in bytes
-pub const opcode_table: [(Instructions, u8); 32] = [
+                        // Instruction, param count length in bytes - used by the VM to determine jumps and different size params (like 32 bit and so on)
+pub const OPCODE_TABLE: [(Instructions, u8); 32] = [
     (Instructions::HLT, 0),
     (Instructions::PSH, 4),
     (Instructions::POP, 1),
