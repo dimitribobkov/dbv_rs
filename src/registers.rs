@@ -1,6 +1,6 @@
 pub struct Registers{
     pub registers: [i32; 6],
-    pub instruction_pointer: usize,
+    pub instruction_pointer: i32,
     pub stack_pointer: isize,
 }
 
@@ -25,16 +25,16 @@ impl Registers{
 
     /* Instruction pointer */
 
-    pub fn increment_instruction_pointer(&mut self, n: usize){
+    pub fn increment_instruction_pointer(&mut self, n: i32){
         self.instruction_pointer += n;
     }
 
-    pub fn set_instruction_pointer(&mut self, value: usize){
+    pub fn set_instruction_pointer(&mut self, value: i32){
         self.instruction_pointer = value;
     }
 
     pub fn get_instruction_pointer(&self) -> usize{
-        self.instruction_pointer
+        self.instruction_pointer as usize
     }
 
     /* Stack pointer */

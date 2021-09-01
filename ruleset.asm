@@ -1,47 +1,66 @@
 ; Required in any asm files you want to compile for dbv
+#subruledef register
+{
+    a => 0x0
+    b => 0x1
+    c => 0x2
+    d => 0x3
+    e => 0x4
+    f => 0x5
+}
+
 #ruledef
 {
     
-    hlt                                         => 0x00
-    push {value: s32}                           => 0x01 @ reg ; push value to the stack
-    pop {reg: s8}                               => 0x02 @ reg ; pop to reg
-    load {reg: s8}, {value: s32}                => 0x03 @ reg @ value ; Set the contents of reg to value (32 bit)
-    move {reg_a: s8}, {reg_b: s8}               => 0x04 @ reg_a @ reg_b ; Copy the contents from reg b to reg a
-    if {reg: s8}, {value: s32}, {addr: s16}     => 0x05 @ reg @ value @ addr ; if reg == val, goto addr
-    ifn {reg: s8}, {value: s32}, {addr: s16}    => 0x06 @ reg @ value @ addr ; if reg != val, goto addr
-    jmp {addr: s16}                             => 0x07 @ addr ; Jumps to addr
-    slt {reg_a: s8}, {reg_b: s8}, {reg_c: s8}   => 0x08  @ reg_a @ reg_b @ reg_c ; reg_a = reg_b < reg_c
+    hlt                                                                     => 0x00
+    push {value: s32}                                                       => 0x01 @ reg`8 ; push value to the stack
+    pop r_{reg: register}                                                   => 0x02 @ reg`8 ; pop to reg
+    load r_{reg: register}, {value: s32}                                    => 0x03 @ reg`8 @ value ; Set the contents of reg to value (32 bit)
+    move r_{reg_a: register}, r_{reg_b: register}                           => 0x04 @ reg_a`8 @ reg_b`8 ; Copy the contents from reg b to reg a
+    slt r_{reg_a: register}, r_{reg_b: register}, r_{reg_c: register}       => 0x05  @ reg_a`8 @ reg_b`8 @ reg_c`8 ; reg_a = reg_b < reg_c
     
     ; Arithmetic
-    add {reg_a: s8}, {reg_b: s8}, {reg_c: s8}   => 0x09 @ reg_a @ reg_b @ reg_c ; reg_b + reg_c, storing the results in reg a
-    sub {reg_a: s8}, {reg_b: s8}, {reg_c: s8}   => 0x0A @ reg_a @ reg_b @ reg_c ; reg_b - reg_c, storing the results in reg a
-    mul {reg_a: s8}, {reg_b: s8}, {reg_c: s8}   => 0x0B @ reg_a @ reg_b @ reg_c ; reg_b * reg_c, storing the results in reg a
-    div {reg_a: s8}, {reg_b: s8}, {reg_c: s8}   => 0x0C @ reg_a @ reg_b @ reg_c ; reg_b / reg_c, storing the results in reg a
+    add r_{reg_a: register}, r_{reg_b: register}, r_{reg_c: register}       => 0x06 @ reg_a`8 @ reg_b`8 @ reg_c`8 ; reg_b + reg_c, storing the results in reg a
+    sub r_{reg_a: register}, r_{reg_b: register}, r_{reg_c: register}       => 0x07 @ reg_a`8 @ reg_b`8 @ reg_c`8 ; reg_b - reg_c, storing the results in reg a
+    mul r_{reg_a: register}, r_{reg_b: register}, r_{reg_c: register}       => 0x08 @ reg_a`8 @ reg_b`8 @ reg_c`8 ; reg_b * reg_c, storing the results in reg a
+    div r_{reg_a: register}, r_{reg_b: register}, r_{reg_c: register}       => 0x09 @ reg_a`8 @ reg_b`8 @ reg_c`8 ; reg_b / reg_c, storing the results in reg a
 
-    addi {reg_a: s8}, {reg_b: s8}, {value: s32}   => 0x0D @ reg_a @ reg_b @ value ; reg_b + value, storing the results in reg a
-    subi {reg_a: s8}, {reg_b: s8}, {value: s32}   => 0x0E @ reg_a @ reg_b @ value ; reg_b - value, storing the results in reg a
-    muli {reg_a: s8}, {reg_b: s8}, {value: s32}   => 0x0F @ reg_a @ reg_b @ value ; reg_b * value, storing the results in reg a
-    divi {reg_a: s8}, {reg_b: s8}, {value: s32}   => 0x10 @ reg_a @ reg_b @ value ; reg_b / value, storing the results in reg a
+    addi r_{reg_a: register}, r_{reg_b: register}, {value: s32}             => 0x0A @ reg_a`8 @ reg_b`8 @ value ; reg_b + value, storing the results in reg a
+    subi r_{reg_a: register}, r_{reg_b: register}, {value: s32}             => 0x0B @ reg_a`8 @ reg_b`8 @ value ; reg_b - value, storing the results in reg a
+    muli r_{reg_a: register}, r_{reg_b: register}, {value: s32}             => 0x0C @ reg_a`8 @ reg_b`8 @ value ; reg_b * value, storing the results in reg a
+    divi r_{reg_a: register}, r_{reg_b: register}, {value: s32}             => 0x0D @ reg_a`8 @ reg_b`8 @ value ; reg_b / value, storing the results in reg a
 
-    and {reg_a: s8}, {reg_b: s8}, {reg_c: s8}   => 0x11 @ reg_a @ reg_b @ reg_c ; reg_b & reg_c, storing the results in reg a
-    or {reg_a: s8}, {reg_b: s8}, {reg_c: s8}   => 0x12 @ reg_a @ reg_b @ reg_c ; reg_b | reg_c, storing the results in reg a
-    sl {reg_a: s8}, {reg_b: s8}, {reg_c: s8}   => 0x13 @ reg_a @ reg_b @ reg_c ; reg_b << reg_c, storing the results in reg a
-    sr {reg_a: s8}, {reg_b: s8}, {reg_c: s8}   => 0x14 @ reg_a @ reg_b @ reg_c ; reg_b >> reg_c, storing the results in reg a
+    and r_{reg_a: register}, r_{reg_b: register}, r_{reg_c: register}       => 0x0E @ reg_a`8 @ reg_b`8 @ reg_c`8 ; reg_b & reg_c, storing the results in reg a
+    or r_{reg_a: register}, r_{reg_b: register}, r_{reg_c: register}        => 0x0F @ reg_a`8 @ reg_b`8 @ reg_c`8 ; reg_b | reg_c, storing the results in reg a
+    sl r_{reg_a: register}, r_{reg_b: register}, r_{reg_c: register}        => 0x10 @ reg_a`8 @ reg_b`8 @ reg_c`8 ; reg_b << reg_c, storing the results in reg a
+    sr r_{reg_a: register}, r_{reg_b: register}, r_{reg_c: register}        => 0x11 @ reg_a`8 @ reg_b`8 @ reg_c`8 ; reg_b >> reg_c, storing the results in reg a
     
-    sli {reg_a: s8}, {reg_b: s8}, {value: s32}   => 0x15 @ reg_a @ reg_b @ value ; reg_b << value, storing the results in reg a
-    sri {reg_a: s8}, {reg_b: s8}, {value: s32}   => 0x16 @ reg_a @ reg_b @ value ; reg_b >> value, storing the results in reg a
+    sli r_{reg_a: register}, r_{reg_b: register}, {value: s32}              => 0x12 @ reg_a`8 @ reg_b`8 @ value ; reg_b << value, storing the results in reg a
+    sri r_{reg_a: register}, r_{reg_b: register}, {value: s32}              => 0x13 @ reg_a`8 @ reg_b`8 @ value ; reg_b >> value, storing the results in reg a
     
-    sal {reg}                                    => 0x17 @ reg ; reg = reg << 1
-    sar {reg}                                    => 0x18 @ reg ; reg = reg >> 1
+    sal r_{reg: register}                                                   => 0x14 @ reg`8 ; reg = reg << 1
+    sar r_{reg: register}                                                   => 0x15 @ reg`8 ; reg = reg >> 1
     
     ; Memory Operations
-    lb {reg: s8}, {mem_addr: s16}                   => 0x19 @ reg @ mem_addr ; Load byte (8) bit) into reg from mem_addr 
-    sb {mem_addr: s16}, {reg: s8}                   => 0x1A @ mem_addr @ reg ; Store byte (8 bit) from reg into mem_addr 
+    lb r_{reg: register}, {mem_addr: s16}                                   => 0x16 @ reg`8 @ mem_addr ; Load byte (8) bit) into reg from mem_addr 
+    sb {mem_addr: s16}, r_{reg: register}                                   => 0x17 @ mem_addr @ reg`8 ; Store byte (8 bit) from reg into mem_addr 
 
-    lhw {reg: s8}, {mem_addr: s16}                   => 0x1B @ reg @ mem_addr ; Load halfword (16 bit) into reg from mem_addr 
-    shw {mem_addr: s16}, {reg: s8}                   => 0x1C @ mem_addr @ reg ; Store hlafword (16 bit) from reg into mem_addr 
+    lhw r_{reg: register}, {mem_addr: s16}                                  => 0x18 @ reg`8 @ mem_addr ; Load halfword (16 bit) into reg from mem_addr 
+    shw {mem_addr: s16}, r_{reg: register}                                  => 0x19 @ mem_addr @ reg ; Store hlafword (16 bit) from reg into mem_addr 
     
-    lw {reg: s8}, {mem_addr: s16}                   => 0x1D @ reg @ mem_addr ; Load word (32 bit) into reg from mem_addr 
-    sw {mem_addr: s16}, {reg: s8}                   => 0x1E @ mem_addr @ reg ; Store word (32 bit) from reg into mem_addr 
+    lw r_{reg: register}, {mem_addr: s16}                                   => 0x1A @ reg`8 @ mem_addr ; Load word (32 bit) into reg from mem_addr 
+    sw {mem_addr: s16}, r_{reg: register}                                   => 0x1B @ mem_addr @ reg`8 ; Store word (32 bit) from reg into mem_addr 
+
+    ; Jumps and branching (no relative jumps yet :))
+    if r_{reg: register}, {value: s32}, {addr: s16}                         => 0x1C @ reg`8 @ value @ addr ; if reg == val, goto addr
+    ifn r_{reg: register}, {value: s32}, {addr: s16}                        => 0x1D @ reg`8 @ value @ addr ; if reg != val, goto addr
+    jmp {addr: s16}                                                         => 0x1E @ addr ; Jumps to addr
+    jnz r_{reg: register}, {addr: s16}                                      => 0x1F @ reg`8 @ addr ; Jumps to addr
+
+    ifr r_{reg: register}, {value: s32}, {rel_addr: s8}                     => 0x20 @ reg`8 @ value @ {REL = (rel_addr - pc), assert(REL <= 127 && REL >= -128), REL[7:0]} ; if reg == val, goto rel_addr
+    ifnr r_{reg: register}, {value: s32}, {rel_addr: s8}                    => 0x21 @ reg`8 @ value @ {REL = (rel_addr - pc), assert(REL <= 127 && REL >= -128), REL[7:0]} ; if reg != val, goto rel_addr
+    jmpr {rel_addr: s8}                                                     => 0x22 @ {REL = (rel_addr - pc), assert(REL <= 127 && REL >= -128), REL[7:0]} ; Jumps relatively to addr
+    jnzr r_{reg: register}, {rel_addr: s8}                                  => 0x23 @ reg`8 @ {REL = (rel_addr - pc), assert(REL <= 127 && REL >= -128), REL[7:0]} ; Jumps relatively to addr
+
     
 }

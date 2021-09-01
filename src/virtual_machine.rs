@@ -2,11 +2,12 @@ use crate::{Instructions, Memory, OPCODE_TABLE, Registers};
 
 use std::fs::read;
 
+
 pub struct VirtualMachine{
     registers: Registers,
     memory: Memory,
 
-    program: Vec::<(Instructions, Vec::<u32>)>,
+    program: Vec::<(Instructions, Vec::<i32>)>,
 
     running: bool,
 
@@ -20,7 +21,7 @@ impl VirtualMachine{
         Self{
             registers: Registers::new(),
             memory: Memory::new(),
-            program: Vec::<(Instructions, Vec::<u32>)>::new(),
+            program: Vec::<(Instructions, Vec::<i32>)>::new(),
             running: true,
             has_jumped: false,
         }
@@ -28,15 +29,19 @@ impl VirtualMachine{
 
     pub fn load_program(&mut self, path: &str) -> std::io::Result<()>{
         let result = read(path)?;
+
         println!("Loading program...");
+        
+        
 
         let mut i = 0;
         while i < result.len(){
             for value in OPCODE_TABLE{
                 if value.0 == Instructions::from(result[i]){
-                    let mut instr_params = Vec::<u32>::new();
+                    let mut instr_params = Vec::<i32>::new();
                     for n in 0..(value.1 as usize){
-                        instr_params.push(result[(i + 1) + n] as u32);
+                        let signed_value =  result[(i + 1) + n] as i8;
+                        instr_params.push((signed_value) as i32);
                     }
 
                     self.program.push((Instructions::from(result[i]), instr_params));
@@ -49,6 +54,8 @@ impl VirtualMachine{
         }
 
         println!("Loaded program!");
+
+        //println!("Program: {:?}", self.program);
 
         Ok(())
     }
@@ -72,7 +79,7 @@ impl VirtualMachine{
         Ok(())
     }
 
-    pub fn fetch(&self) -> &(Instructions, Vec<u32>){
+    pub fn fetch(&self) -> &(Instructions, Vec<i32>){
         &self.program[self.registers.get_instruction_pointer()]
     }
 
@@ -103,26 +110,6 @@ impl VirtualMachine{
             },
             Instructions::MOV => {
                 self.registers.set_register(params[0] as usize, self.registers.get_register(params[1] as usize));
-            },
-            Instructions::IF => {
-                let value = params[1] << 24 | params[2] << 16 | params[3] << 8 | params[4];
-                if self.registers.get_register(params[0] as usize) == value as i32{
-                    let final_value = (params[5] << 8 | params[6]) as usize;
-
-                    self.handle_jump(final_value);
-                }
-            },
-            Instructions::IFN => {
-                let value = params[1] << 24 | params[2] << 16 | params[3] << 8 | params[4];
-                if self.registers.get_register(params[0] as usize) != value as i32{
-                    let final_value = (params[5] << 8 | params[6]) as usize;
-
-                    self.handle_jump(final_value);
-                }
-            },
-            Instructions::JMP => {
-                let final_value = (params[0] << 8 | params[1]) as usize;
-                self.handle_jump(final_value);
             },
             Instructions::SLT => {
                 self.registers.set_register(params[0] as usize, 
@@ -222,11 +209,62 @@ impl VirtualMachine{
                 let final_value = params[0] << 8 | params[1];
                 self.memory.write_word(final_value as usize, self.registers.get_register(params[2] as usize) as u32);
             },
+
+            Instructions::IF => {
+                let value = params[1] << 24 | params[2] << 16 | params[3] << 8 | params[4];
+                if self.registers.get_register(params[0] as usize) == value as i32{
+                    let final_value = (params[5] << 8 | params[6]) as usize;
+
+                    self.handle_jump(final_value);
+                }
+            },
+            Instructions::IFN => {
+                let value = params[1] << 24 | params[2] << 16 | params[3] << 8 | params[4];
+                if self.registers.get_register(params[0] as usize) != value as i32{
+                    let final_value = (params[5] << 8 | params[6]) as usize;
+
+                    self.handle_jump(final_value);
+                }
+            },
+            Instructions::JMP => {
+                let final_value = (params[0] << 8 | params[1]) as usize;
+                self.handle_jump(final_value);
+            },
             Instructions::JNZ => {
                 if self.registers.get_register(params[0] as usize) != 0{
                     let final_value = (params[1] << 8 | params[2]) as usize;
                     
                     self.handle_jump(final_value);
+                }
+            },
+
+
+            Instructions::IFR => {
+                let value = params[1] << 24 | params[2] << 16 | params[3] << 8 | params[4];
+                if self.registers.get_register(params[0] as usize) == value as i32{
+                    let final_value = params[5] as isize;
+
+                    self.handle_relative_jump(final_value);
+                }
+            },
+            Instructions::IFNR => {
+                let value = params[1] << 24 | params[2] << 16 | params[3] << 8 | params[4];
+                if self.registers.get_register(params[0] as usize) != value as i32{
+                    let final_value = params[5] as isize;
+
+                    self.handle_relative_jump(final_value);
+                }
+            },
+            Instructions::JMPR => {
+                let final_value = params[0] as isize;
+                
+                self.handle_relative_jump(final_value);
+            },
+            Instructions::JNZR => {
+                if self.registers.get_register(params[0] as usize) != 0{
+                    let final_value = params[1] as isize;
+                    
+                    self.handle_relative_jump(final_value);
                 }
             },
         }
@@ -250,7 +288,60 @@ impl VirtualMachine{
 
         
         
-        self.registers.set_instruction_pointer(addr);
+        self.registers.set_instruction_pointer(addr as i32);
         self.has_jumped = true;
     }
+
+        // Automatically converts jumps into the appropriate format to be used by the VM
+        fn handle_relative_jump(&mut self, mut addr: isize){
+            let mut param_count: isize = 0;
+            let mut i: isize = 0;
+            
+            for val in self.program.clone(){
+                if self.registers.get_instruction_pointer() as isize == i - param_count{
+                    break;
+                }
+                param_count += val.1.len() as isize;
+
+                i += 1;
+                i += val.1.len() as isize;
+    
+            }
+            
+            
+            addr += i;
+
+            i = 0;
+            param_count = 0;
+
+            if addr > 0{    
+                for val in self.program.clone(){
+                    if i == addr{
+                        break;
+                    }
+                    param_count += val.1.len() as isize;
+                    i += 1;
+                    i += val.1.len() as isize;
+        
+                }
+                
+                addr -= param_count;
+            }else{               
+                for val in self.program.clone(){
+                    if i == addr{
+                        break;
+                    }
+                    param_count += val.1.len() as isize;
+                    i += 1;
+                    i += val.1.len() as isize;
+        
+                }
+                
+                addr += param_count;
+            }
+            
+            self.registers.set_instruction_pointer(addr as i32);
+
+            self.has_jumped = true;
+        }
 }

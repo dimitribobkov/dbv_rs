@@ -2,7 +2,7 @@ const STACK_SIZE: usize = 0xFF;
 const MEMORY_SIZE: usize = 0xFFFF;
 
 pub struct Memory{
-    pub stack: [u32; STACK_SIZE],
+    pub stack: [i32; STACK_SIZE],
     pub memory: [u8; MEMORY_SIZE],
 }
 
@@ -65,7 +65,7 @@ impl Memory{
 
     /* Stack */
 
-    pub fn push_to_stack(&mut self, value: u32, stack_pointer: isize){
+    pub fn push_to_stack(&mut self, value: i32, stack_pointer: isize){
         if stack_pointer == -1{
             println!("Warning: Stack Pointer is negative. Skipping...");
             return
@@ -73,7 +73,7 @@ impl Memory{
         self.stack[stack_pointer as usize] = value;
     }
 
-    pub fn pop_from_stack(&mut self, stack_pointer: isize) -> u32{
+    pub fn pop_from_stack(&mut self, stack_pointer: isize) -> i32{
         if stack_pointer == -1{
             println!("Warning: Stack Pointer is negative. Skipping...");
             return 0;
