@@ -65,8 +65,6 @@ impl VirtualMachine{
                 println!("HLT! Finished running!");
                 break 'running;
             }
-            println!("Registers: {:?}", self.registers.registers);
-
         }
 
         println!("Registers at the end of running: {:?}", self.registers.registers);

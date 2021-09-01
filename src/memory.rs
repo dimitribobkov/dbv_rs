@@ -2,8 +2,8 @@ const STACK_SIZE: usize = 0xFF;
 const MEMORY_SIZE: usize = 0xFFFF;
 
 pub struct Memory{
-    stack: [u32; STACK_SIZE],
-    memory: [u8; MEMORY_SIZE],
+    pub stack: [u32; STACK_SIZE],
+    pub memory: [u8; MEMORY_SIZE],
 }
 
 impl Memory{
