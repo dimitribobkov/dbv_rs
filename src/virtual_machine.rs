@@ -36,26 +36,28 @@ impl VirtualMachine{
 
         let mut i = 0;
         while i < result.len(){
+            let instruction = Instructions::from(result[i]);
             for value in OPCODE_TABLE{
-                if value.0 == Instructions::from(result[i]){
+                if value.0 == instruction{
                     let mut instr_params = Vec::<i32>::new();
                     for n in 0..(value.1 as usize){
-                        let signed_value =  result[(i + 1) + n] as i8;
-                        instr_params.push((signed_value) as i32);
+                        let signed_value =  result[(i + 1) + n] as u8;
+                        instr_params.push(signed_value as i32);
                     }
 
-                    self.program.push((Instructions::from(result[i]), instr_params));
+                    self.program.push((instruction, instr_params));
                     i += value.1 as usize;
                     break;
                 }
             }
+
 
             i += 1;
         }
 
         println!("Loaded program!");
 
-        //println!("Program: {:?}", self.program);
+        println!("Program: {:?}", self.program);
 
         Ok(())
     }
@@ -187,7 +189,7 @@ impl VirtualMachine{
             },
             Instructions::LD => {
                 let final_value = params[1] << 8 | params[2];
-                self.registers.set_register(params[0] as usize, self.memory.read_byte(final_value as usize) as i32);
+                self.registers.set_register(params[0] as usize, self.memory.read_byte(final_value as usize) as i8 as i32);
             },
             Instructions::SD => {
                 let final_value = params[0] << 8 | params[1];
@@ -195,7 +197,7 @@ impl VirtualMachine{
             },
             Instructions::LDHW => {
                 let final_value = params[1] << 8 | params[2];
-                self.registers.set_register(params[0] as usize, self.memory.read_half_word(final_value as usize) as i32);
+                self.registers.set_register(params[0] as usize, self.memory.read_half_word(final_value as usize) as i16 as i32);
             },
             Instructions::SDHW => {
                 let final_value = params[0] << 8 | params[1];
@@ -242,27 +244,28 @@ impl VirtualMachine{
             Instructions::IFR => {
                 let value = params[1] << 24 | params[2] << 16 | params[3] << 8 | params[4];
                 if self.registers.get_register(params[0] as usize) == value as i32{
-                    let final_value = params[5] as isize;
+                    let final_value = params[5] as i8 as isize;
 
                     self.handle_relative_jump(final_value);
                 }
             },
             Instructions::IFNR => {
                 let value = params[1] << 24 | params[2] << 16 | params[3] << 8 | params[4];
-                if self.registers.get_register(params[0] as usize) != value as i32{
-                    let final_value = params[5] as isize;
+
+                if self.registers.get_register(params[0] as usize) != value{
+                    let final_value = params[5] as i8 as isize;
 
                     self.handle_relative_jump(final_value);
                 }
             },
             Instructions::JMPR => {
-                let final_value = params[0] as isize;
+                let final_value = params[0] as i8 as isize;
                 
                 self.handle_relative_jump(final_value);
             },
             Instructions::JNZR => {
                 if self.registers.get_register(params[0] as usize) != 0{
-                    let final_value = params[1] as isize;
+                    let final_value = params[1] as i32 as isize;
                     
                     self.handle_relative_jump(final_value);
                 }
@@ -292,56 +295,56 @@ impl VirtualMachine{
         self.has_jumped = true;
     }
 
-        // Automatically converts jumps into the appropriate format to be used by the VM
-        fn handle_relative_jump(&mut self, mut addr: isize){
-            let mut param_count: isize = 0;
-            let mut i: isize = 0;
-            
+    // Automatically converts jumps into the appropriate format to be used by the VM
+    fn handle_relative_jump(&mut self, mut addr: isize){
+        let mut param_count: isize = 0;
+        let mut i: isize = 0;
+        
+        for val in self.program.clone(){
+            if self.registers.get_instruction_pointer() as isize == i - param_count{
+                break;
+            }
+            param_count += val.1.len() as isize;
+
+            i += 1;
+            i += val.1.len() as isize;
+
+        }
+        
+        
+        addr += i;
+
+        i = 0;
+        param_count = 0;
+
+        if addr > 0{    
             for val in self.program.clone(){
-                if self.registers.get_instruction_pointer() as isize == i - param_count{
+                if i == addr{
                     break;
                 }
                 param_count += val.1.len() as isize;
-
                 i += 1;
                 i += val.1.len() as isize;
     
             }
             
-            
-            addr += i;
-
-            i = 0;
-            param_count = 0;
-
-            if addr > 0{    
-                for val in self.program.clone(){
-                    if i == addr{
-                        break;
-                    }
-                    param_count += val.1.len() as isize;
-                    i += 1;
-                    i += val.1.len() as isize;
-        
+            addr -= param_count;
+        }else{               
+            for val in self.program.clone(){
+                if i == addr{
+                    break;
                 }
-                
-                addr -= param_count;
-            }else{               
-                for val in self.program.clone(){
-                    if i == addr{
-                        break;
-                    }
-                    param_count += val.1.len() as isize;
-                    i += 1;
-                    i += val.1.len() as isize;
-        
-                }
-                
-                addr += param_count;
+                param_count += val.1.len() as isize;
+                i += 1;
+                i += val.1.len() as isize;
+    
             }
             
-            self.registers.set_instruction_pointer(addr as i32);
-
-            self.has_jumped = true;
+            addr += param_count;
         }
+        self.registers.set_instruction_pointer(addr as i32);
+
+        self.has_jumped = true;
+    }
 }
+
