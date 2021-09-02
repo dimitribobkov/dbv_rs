@@ -47,9 +47,12 @@ pub enum Instructions{
     JNZ = 0x1F,     // | 31 |  JNZ reg addr           | Jumps to addr if reg is not 0
 
     IFR = 0x20,     // | 32 |  IFR reg val rel_addr   | Relative jump to rel_addr if reg == val
-    IFNR = 0x21,    // | 32 |  IFNR reg val rel_addr  | Relative jump to rel_addr if reg != val
-    JMPR = 0x22,    // | 33 |  JMPR rel_addr          | Relative jump to addr
-    JNZR = 0x23,    // | 34 |  JNZR reg rel_addr      | Relative jump to addr if reg is not 0
+    IFNR = 0x21,    // | 33 |  IFNR reg val rel_addr  | Relative jump to rel_addr if reg != val
+    JMPR = 0x22,    // | 34 |  JMPR rel_addr          | Relative jump to addr
+    JNZR = 0x23,    // | 35 |  JNZR reg rel_addr      | Relative jump to addr if reg is not 0
+
+
+    RET = 0x24,     // | 36 |  RET                     | Return from a jump
 }
 
 // Convert from a regular opcode integer into an enum
@@ -99,12 +102,14 @@ impl<T> From<T> for Instructions where T: Into<i32>{
             0x22 => Self::JMPR,
             0x23 => Self::JNZR,
 
+            0x24 => Self::RET,
+
             _ => panic!("Error - value does not correspond to an instruction!")
         }
     }
 }
                         // Instruction, param count length in bytes - used by the VM to determine jumps and different size params (like 32 bit and so on)
-pub const OPCODE_TABLE: [(Instructions, u8); 36] = [
+pub const OPCODE_TABLE: [(Instructions, u8); 37] = [
     (Instructions::HLT, 0),
     (Instructions::PSH, 4),
     (Instructions::POP, 1),
@@ -147,4 +152,6 @@ pub const OPCODE_TABLE: [(Instructions, u8); 36] = [
     (Instructions::IFNR, 6),
     (Instructions::JMPR, 1),
     (Instructions::JNZR, 2),
+
+    (Instructions::RET, 0),
 ];

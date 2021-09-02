@@ -13,7 +13,6 @@
 {
     
     hlt                                                                     => 0x00
-    ret                                                                     => 0x00
 
     push {value: i32}                                                       => 0x01 @ reg`8 ; push value to the stack
     pop r_{reg: register}                                                   => 0x02 @ reg`8 ; pop to reg
@@ -54,15 +53,15 @@
     sw {mem_addr: i16}, r_{reg: register}                                   => 0x1B @ mem_addr @ reg`8 ; Store word (32 bit) from reg into mem_addr 
 
     ; Jumps and branching (no relative jumps yet :))
-    if r_{reg: register}, {value: i32}, {addr: i16}                         => 0x1C @ reg`8 @ value @ addr ; if reg == val, goto addr
-    ifn r_{reg: register}, {value: i32}, {addr: i16}                        => 0x1D @ reg`8 @ value @ addr ; if reg != val, goto addr
-    jmp {addr: i16}                                                         => 0x1E @ addr ; Jumps to addr
-    jnz r_{reg: register}, {addr: i16}                                      => 0x1F @ reg`8 @ addr ; Jumps to addr
+    if r_{reg: register}, {value: i32}, {addr: i16}                         => 0x1C @ reg`8 @ value @ {REL = (addr - pc), assert(REL > 127 && REL < -128), REL[15:0]} ; if reg == val, goto rel_addr
+    ifn r_{reg: register}, {value: i32}, {addr: i16}                        => 0x1D @ reg`8 @ value @ {REL = (addr - pc), assert(REL > 127 && REL < -128), REL[15:0]} ; if reg != val, goto addr
+    jmp {addr: i16}                                                         => 0x1E @ {REL = (addr - pc), assert(REL > 127 && REL < -128), REL[15:0]} ; Jumps to addr
+    jnz r_{reg: register}, {addr: i16}                                      => 0x1F @ reg`8 @ {REL = (addr - pc), assert(REL > 127 && REL < -128), REL[15:0]} ; Jumps to addr
 
-    ifr r_{reg: register}, {value: i32}, {rel_addr: i8}                     => 0x20 @ reg`8 @ value @ {REL = (rel_addr - pc), assert(REL <= 127 && REL >= -128), REL[7:0]} ; if reg == val, goto rel_addr
-    ifnr r_{reg: register}, {value: i32}, {rel_addr: i8}                    => 0x21 @ reg`8 @ value @ {REL = (rel_addr - pc), assert(REL <= 127 && REL >= -128), REL[7:0]} ; if reg != val, goto rel_addr
-    jmpr {rel_addr: i8}                                                     => 0x22 @ {REL = (rel_addr - pc), assert(REL <= 127 && REL >= -128), REL[7:0]} ; Jumps relatively to addr
-    jnzr r_{reg: register}, {rel_addr: i8}                                  => 0x23 @ reg`8 @ {REL = (rel_addr - pc), assert(REL <= 127 && REL >= -128), REL[7:0]} ; Jumps relatively to addr
+    if r_{reg: register}, {value: i32}, {rel_addr: i8}                      => 0x20 @ reg`8 @ value @ {REL = (rel_addr - pc), assert(REL <= 127 && REL >= -128), REL[7:0]} ; if reg == val, goto rel_addr
+    ifn r_{reg: register}, {value: i32}, {rel_addr: i8}                     => 0x21 @ reg`8 @ value @ {REL = (rel_addr - pc), assert(REL <= 127 && REL >= -128), REL[7:0]} ; if reg != val, goto rel_addr
+    jmp {rel_addr: i8}                                                      => 0x22 @ {REL = (rel_addr - pc), assert(REL <= 127 && REL >= -128), REL[7:0]} ; Jumps relatively to addr
+    jnz r_{reg: register}, {rel_addr: i8}                                   => 0x23 @ reg`8 @ {REL = (rel_addr - pc), assert(REL <= 127 && REL >= -128), REL[7:0]} ; Jumps relatively to addr
 
-    
+    ret                                                                     => 0x24 ; Return from a jump
 }

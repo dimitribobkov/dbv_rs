@@ -270,6 +270,10 @@ impl VirtualMachine{
                     self.handle_relative_jump(final_value);
                 }
             },
+
+            Instructions::RET => {
+                self.registers.set_instruction_pointer(self.registers.jump_pointer);
+            }
         }
     }
 
@@ -290,7 +294,7 @@ impl VirtualMachine{
         addr -= param_count;
 
         
-        
+        self.registers.jump_pointer = self.registers.get_instruction_pointer() as i32;
         self.registers.set_instruction_pointer(addr as i32);
         self.has_jumped = true;
     }
@@ -317,33 +321,26 @@ impl VirtualMachine{
         i = 0;
         param_count = 0;
 
-        if addr > 0{    
-            for val in self.program.clone(){
-                if i == addr{
-                    break;
-                }
-                param_count += val.1.len() as isize;
-                i += 1;
-                i += val.1.len() as isize;
-    
+        for val in self.program.clone(){
+            if i == addr{
+                break;
             }
-            
+            param_count += val.1.len() as isize;
+            i += 1;
+            i += val.1.len() as isize;
+
+        }
+
+        if addr > 0{                
             addr -= param_count;
         }else{               
-            for val in self.program.clone(){
-                if i == addr{
-                    break;
-                }
-                param_count += val.1.len() as isize;
-                i += 1;
-                i += val.1.len() as isize;
-    
-            }
             
             addr += param_count;
         }
-        self.registers.set_instruction_pointer(addr as i32);
 
+
+        self.registers.jump_pointer = self.registers.get_instruction_pointer() as i32;
+        self.registers.set_instruction_pointer(addr as i32);
         self.has_jumped = true;
     }
 }
