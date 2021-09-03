@@ -64,4 +64,6 @@
     jnz r_{reg: register}, {rel_addr: i8}                                   => 0x23 @ reg`8 @ {REL = (rel_addr - pc), assert(REL <= 127 && REL >= -128), REL[7:0]} ; Jumps relatively to addr
 
     ret                                                                     => 0x24 ; Return from a jump
+
+    load r_{reg: register}, {value: s32}                                    => 0x03 @ reg`8 @ value ; Set the contents of reg to value (32 bit, fp32)
 }

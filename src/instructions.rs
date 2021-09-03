@@ -53,6 +53,8 @@ pub enum Instructions{
 
 
     RET = 0x24,     // | 36 |  RET                     | Return from a jump
+
+    SETF = 0x25     // | 37 |  SETF reg val            | Set a fp reg to val (also an f)
 }
 
 // Convert from a regular opcode integer into an enum
@@ -104,12 +106,14 @@ impl<T> From<T> for Instructions where T: Into<i32>{
 
             0x24 => Self::RET,
 
+            0x25 => Self::SETF,
+
             _ => panic!("Error - value does not correspond to an instruction!")
         }
     }
 }
                         // Instruction, param count length in bytes - used by the VM to determine jumps and different size params (like 32 bit and so on)
-pub const OPCODE_TABLE: [(Instructions, u8); 37] = [
+pub const OPCODE_TABLE: [(Instructions, u8); 38] = [
     (Instructions::HLT, 0),
     (Instructions::PSH, 4),
     (Instructions::POP, 1),
@@ -154,4 +158,5 @@ pub const OPCODE_TABLE: [(Instructions, u8); 37] = [
     (Instructions::JNZR, 2),
 
     (Instructions::RET, 0),
+    (Instructions::SETF, 5),
 ];

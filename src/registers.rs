@@ -1,5 +1,7 @@
 pub struct Registers{
     pub registers: [i32; 6], // 6 general purpose registers
+    
+    fp_registers: [f32; 6], // 6 general purpose floating point registers
 
     pub jump_pointer: i32, // A special register to store the IP when jumping (so you can return from a jump)
 
@@ -11,6 +13,8 @@ impl Registers{
     pub fn new() -> Self{
         Self{
             registers: [0; 6],
+
+            fp_registers: [0.0; 6],
 
             jump_pointer: 0,
 
@@ -27,6 +31,14 @@ impl Registers{
 
     pub fn get_register(&self, register: usize) -> i32{
         self.registers[register]
+    }
+
+    pub fn set_f_register(&mut self, register: usize, value: f32){
+        self.fp_registers[register] = value;
+    }
+
+    pub fn get_f_register(&self, register: usize) -> f32{
+        self.fp_registers[register]
     }
 
     /* Instruction pointer */
