@@ -3,6 +3,9 @@ pub struct Registers{
     
     pub fp_registers: [f32; 6], // 6 general purpose floating point registers
 
+    pub exception_register: u32,
+    pub exception_flags: u32,
+
     pub jump_pointer: i32, // A special register to store the IP when jumping (so you can return from a jump)
 
     pub instruction_pointer: i32,
@@ -15,6 +18,9 @@ impl Registers{
             registers: [0; 6],
 
             fp_registers: [0.0; 6],
+
+            exception_register: 0,
+            exception_flags: 0,
 
             jump_pointer: 0,
 
@@ -67,5 +73,9 @@ impl Registers{
 
     pub fn get_stack_pointer(&self) -> isize{
         self.stack_pointer
+    }
+
+    pub fn set_exception_flag(&mut self, flag: u32){
+        self.exception_flags &= flag;
     }
 }
