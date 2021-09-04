@@ -17,7 +17,7 @@
     push {value: i32}                                                       => 0x01 @ reg`8 ; push value to the stack
     pop r_{reg: register}                                                   => 0x02 @ reg`8 ; pop to reg
     load r_{reg: register}, {value: i32}                                    => 0x03 @ reg`8 @ value ; Set the contents of reg to value (32 bit)
-    move r_{reg_a: register}, r_{reg_b: register}                           => 0x04 @ reg_a`8 @ reg_b`8 ; Copy the contents from reg b to reg a
+    move r_{reg_a: register}, r_{reg_b: register}                           => 0x04 @ reg_a`8 @ reg_b`8 ; Copy the contents from reg a to reg b
     slt r_{reg_a: register}, r_{reg_b: register}, r_{reg_c: register}       => 0x05  @ reg_a`8 @ reg_b`8 @ reg_c`8 ; reg_a = reg_b < reg_c
     
     ; Arithmetic
@@ -65,5 +65,8 @@
 
     ret                                                                     => 0x24 ; Return from a jump
 
-    load r_{reg: register}, {value: s32}                                    => 0x03 @ reg`8 @ value ; Set the contents of reg to value (32 bit, fp32)
-}
+    load f_r_{reg: register}, {value: s32}                                  => 0x25 @ reg`8 @ value ; Set the contents of reg to value (32 bit, fp32)
+    move f_r_{reg_a: register}, f_r_{reg_b: register}                       => 0x26 @ reg_a`8 @ reg_b`8 ; Copy the contents from freg a to freg b
+    move f_r_{reg_a: register}, r_{reg_b: register}                         => 0x27 @ reg_a`8 @ reg_b`8 ; Copy the contents from freg a to reg b
+    move r_{reg_a: register}, f_r_{reg_b: register}                         => 0x28 @ reg_a`8 @ reg_b`8 ; Copy the contents from reg a to freg b
+}   

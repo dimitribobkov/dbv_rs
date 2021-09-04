@@ -1,60 +1,82 @@
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Instructions{
                     // ______________________________________________________________________________
-                    // |VAL |  EXAMPLE USAGE          | Description
-                    // |____|_________________________|______________________________________________
-    HLT = 0x0,      // | 0  |  HLT                    | Halts the program
-    PSH = 0x1,      // | 1  |  PSH val                | Push val to stack
-    POP = 0x2,      // | 2  |  POP reg                | Remove from stack and reg to the value
-    SET = 0x3,      // | 3  |  SET reg val            | Set a register
-    MOV = 0x4,      // | 4  |  MOV reg_a reg_b        | Moves value from register a to register b
-    SLT = 0x5,      // | 5  |  SLT reg_a reg_b reg_c  | Set reg_a to 1 if reg_b < reg_c
+                    // |VAL |  EXAMPLE USAGE                    | Description
+                    // |____|___________________________________|____________________________________
+    HLT = 0x0,      // | 0  |  HLT                              | Halts the program
+    PSH = 0x1,      // | 1  |  PSH val                          | Push val to stack
+    POP = 0x2,      // | 2  |  POP reg                          | Remove from stack and reg to the value
+    SET = 0x3,      // | 3  |  SET reg val                      | Set a register
+    MOV = 0x4,      // | 4  |  MOV reg_a reg_b                  | Moves value from register a to register b
+    SLT = 0x5,      // | 5  |  SLT reg_a reg_b reg_c            | Set reg_a to 1 if reg_b < reg_c
+
+    // Arithmetic
+
+    ADD = 0x6,      // | 6  |  ADD reg_a reg_b reg_c            | Adds two registers, storing the result in a register [reg_a = reg_b + reg_c]
+    SUB = 0x7,      // | 7  |  SUB reg_a reg_b reg_c            | Subtracts two registers, storing the result in a register [reg_a = reg_b - reg_c]
+    MUL = 0x8,      // | 8  |  MUL reg_a reg_b reg_c            | Multiplies two registers, storing the result in a register [reg_a = reg_b * reg_c]
+    DIV = 0x9,      // | 9  |  DIV reg_a reg_b reg_c            | Divides two registers, storing the result in a register [reg_a = reg_b / reg_c]
 
 
-    ADD = 0x6,      // | 6  |  ADD reg_a reg_b reg_c  | Adds two registers, storing the result in a register [reg_a = reg_b + reg_c]
-    SUB = 0x7,      // | 7  |  SUB reg_a reg_b reg_c  | Subtracts two registers, storing the result in a register [reg_a = reg_b - reg_c]
-    MUL = 0x8,      // | 8  |  MUL reg_a reg_b reg_c  | Multiplies two registers, storing the result in a register [reg_a = reg_b * reg_c]
-    DIV = 0x9,      // | 9  |  DIV reg_a reg_b reg_c  | Divides two registers, storing the result in a register [reg_a = reg_b / reg_c]
+    ADDI = 0xA,     // | 10 |  ADDI reg_a reg_b val             | Adds a register and a value, storing the result in a register [reg_a = reg_b + val]
+    SUBI = 0xB,     // | 11 |  SUBI reg_a reg_b val             | Subtracts a register and a value, storing the result in a register [reg_a = reg_b - val]
+    MULI = 0xC,     // | 12 |  MULI reg_a reg_b val             | Multiplies a register and a value, storing the result in a register [reg_a = reg_b * val]
+    DIVI = 0xD,     // | 13 |  DIVI reg_a reg_b val             | Divides a register and a value, storing the result in a register [reg_a = reg_b / val]
 
 
-    ADDI = 0xA,     // | 10 |  ADDI reg_a reg_b val   | Adds a register and a value, storing the result in a register [reg_a = reg_b + val]
-    SUBI = 0xB,     // | 11 |  SUBI reg_a reg_b val   | Subtracts a register and a value, storing the result in a register [reg_a = reg_b - val]
-    MULI = 0xC,     // | 12 |  MULI reg_a reg_b val   | Multiplies a register and a value, storing the result in a register [reg_a = reg_b * val]
-    DIVI = 0xD,     // | 13 |  DIVI reg_a reg_b val   | Divides a register and a value, storing the result in a register [reg_a = reg_b / val]
+    AND = 0xE,      // | 14 |  AND reg_a reg_b reg_c            | Performs an AND operation on two registers, storing the result in a register [reg_a = reg_b & reg_c]
+    OR = 0xF,       // | 15 |  OR reg_a reg_b reg_c             | Performs an OR operation on two registers, storing the result in a register [reg_a = reg_b | reg_c]
+    SL = 0x10,      // | 16 |  SL reg_a reg_b reg_c             | Performs an SHIFT LEFT operation on two registers, storing the result in a register [reg_a = reg_b << reg_c]
+    SR = 0x11,      // | 17 |  SR reg_a reg_b reg_c             | Performs an SHIFT RIGHT operation on two registers, storing the result in a register [reg_a = reg_b >> reg_c]
+    SLI = 0x12,     // | 18 |  SLI reg_a reg_b val              | Performs an SHIFT LEFT operation on a register and value, storing the result in a register [reg_a = reg_b << val]
+    SRI = 0x13,     // | 19 |  SRI reg_a reg_b val              | Performs an SHIFT RIGHT operation on a register and value, storing the result in a register [reg_a = reg_b >> val]
+    SAL = 0x14,     // | 20 |  SAL reg                          | Performs an SHIFT LEFT operation on a register, storing the result in a register [reg <<= 1]
+    SAR = 0x15,     // | 21 |  SAR reg                          | Performs an SHIFT RIGHT operation on a register, storing the result in a register [reg >>= 1]
+
+    // Memory Instructions
+
+    LD = 0x16,      // | 22 |  LD reg mem_addr                  | Loads data (uint8_t) from a memory address (uint16_t), storing in a register
+    SD = 0x17,      // | 23 |  SD mem_addr reg                  | Stores data (uint8_t) from a register into memory  at the given address (uint16_t)
+    LDHW = 0x18,    // | 24 |  LDHW reg mem_addr                | Loads data (uint16_t) from a memory address (uint16_t), storing in a register
+    SDHW = 0x19,    // | 25 |  SDHW mem_addr reg                | Stores data (uint16_t) from a register into memory  at the given address (uint16_t)
+    LDW = 0x1A,     // | 26 |  LDW reg mem_addr                 | Loads data (uint32_t) from a memory address (uint16_t), storing in a register
+    SDW = 0x1B,     // | 27 |  SDW mem_addr reg                 | Stores data (uint32_t) from a register into memory  at the given address (uint16_t)
+
+    // Branching instructions
+
+    IF = 0x1C,      // | 28 |  IF reg val addr                  | If reg == val, goto addr
+    IFN = 0x1D,     // | 29 |  IFN reg val addr                 | If reg != val, goto addr
+    JMP = 0x1E,     // | 30 |  JMP addr                         | Relative jump to addr
+    JNZ = 0x1F,     // | 31 |  JNZ reg addr                     | Jumps to addr if reg is not 0
+
+    IFR = 0x20,     // | 32 |  IFR reg val rel_addr             | Relative jump to rel_addr if reg == val
+    IFNR = 0x21,    // | 33 |  IFNR reg val rel_addr            | Relative jump to rel_addr if reg != val
+    JMPR = 0x22,    // | 34 |  JMPR rel_addr                    | Relative jump to addr
+    JNZR = 0x23,    // | 35 |  JNZR reg rel_addr                | Relative jump to addr if reg is not 0
 
 
-    AND = 0xE,      // | 14 |  AND reg_a reg_b reg_c  | Performs an AND operation on two registers, storing the result in a register [reg_a = reg_b & reg_c]
-    OR = 0xF,       // | 15 |  OR reg_a reg_b reg_c   | Performs an OR operation on two registers, storing the result in a register [reg_a = reg_b | reg_c]
-    SL = 0x10,      // | 16 |  SL reg_a reg_b reg_c   | Performs an SHIFT LEFT operation on two registers, storing the result in a register [reg_a = reg_b << reg_c]
-    SR = 0x11,      // | 17 |  SR reg_a reg_b reg_c   | Performs an SHIFT RIGHT operation on two registers, storing the result in a register [reg_a = reg_b >> reg_c]
-    SLI = 0x12,     // | 18 |  SLI reg_a reg_b val    | Performs an SHIFT LEFT operation on a register and value, storing the result in a register [reg_a = reg_b << val]
-    SRI = 0x13,     // | 19 |  SRI reg_a reg_b val    | Performs an SHIFT RIGHT operation on a register and value, storing the result in a register [reg_a = reg_b >> val]
-    SAL = 0x14,     // | 20 |  SAL reg                | Performs an SHIFT LEFT operation on a register, storing the result in a register [reg <<= 1]
-    SAR = 0x15,     // | 21 |  SAR reg                | Performs an SHIFT RIGHT operation on a register, storing the result in a register [reg >>= 1]
+    RET = 0x24,     // | 36 |  RET                              | Return from a jump
 
 
-    LD = 0x16,      // | 22 |  LD reg mem_addr        | Loads data (uint8_t) from a memory address (uint16_t), storing in a register
-    SD = 0x17,      // | 23 |  SD mem_addr reg        | Stores data (uint8_t) from a register into memory  at the given address (uint16_t)
-    LDHW = 0x18,    // | 24 |  LDHW reg mem_addr      | Loads data (uint16_t) from a memory address (uint16_t), storing in a register
-    SDHW = 0x19,    // | 25 |  SDHW mem_addr reg      | Stores data (uint16_t) from a register into memory  at the given address (uint16_t)
-    LDW = 0x1A,     // | 26 |  LDW reg mem_addr       | Loads data (uint32_t) from a memory address (uint16_t), storing in a register
-    SDW = 0x1B,     // | 27 |  SDW mem_addr reg       | Stores data (uint32_t) from a register into memory  at the given address (uint16_t)
+    // _______________________________________________________________________________________________
+    // *Floating point instructions - these use a different set of registers to perform calculations*
+    // _______________________________________________________________________________________________
 
 
-    IF = 0x1C,      // | 28 |  IF reg val addr        | If reg == val, goto addr
-    IFN = 0x1D,     // | 29 |  IFN reg val addr       | If reg != val, goto addr
-    JMP = 0x1E,     // | 30 |  JMP addr               | Relative jump to addr
-    JNZ = 0x1F,     // | 31 |  JNZ reg addr           | Jumps to addr if reg is not 0
+    SETF = 0x25,    // | 37 |  SETF f_reg val                   | Set a fp reg to val (also an f)
+    MOVF = 0x26,    // | 38 |  MOVF f_reg_a f_reg_b             | Move f_reg_a to f_reg_b
+    
+    // These instructions allow you to move data between integer and floating point registers
 
-    IFR = 0x20,     // | 32 |  IFR reg val rel_addr   | Relative jump to rel_addr if reg == val
-    IFNR = 0x21,    // | 33 |  IFNR reg val rel_addr  | Relative jump to rel_addr if reg != val
-    JMPR = 0x22,    // | 34 |  JMPR rel_addr          | Relative jump to addr
-    JNZR = 0x23,    // | 35 |  JNZR reg rel_addr      | Relative jump to addr if reg is not 0
+    MOVFI = 0x27,   // | 39 |  MOVFI f_reg_a reg_b              | Move f_reg_a to reg_b (warning - this will round the float to the nearest integer)
+    MOVIF = 0x28,   // | 40 |  MOVIF reg_a f_reg_b              | Move reg_a to f_reg_b 
 
+    // Arithemtic instructions
 
-    RET = 0x24,     // | 36 |  RET                     | Return from a jump
-
-    SETF = 0x25     // | 37 |  SETF reg val            | Set a fp reg to val (also an f)
+    ADDF = 0x29,    // | 41 |  ADDF f_reg_a f_reg_b f_reg_c     | add f_reg_b to f_reg_c, storing the result in f_reg_a
+    SUBF = 0x30,    // | 42 |  SUBF f_reg_a f_reg_b f_reg_c     | subtract f_reg_b to f_reg_c, storing the result in f_reg_a
+    MULF = 0x31,    // | 43 |  MULF f_reg_a f_reg_b f_reg_c     | multiply f_reg_b to f_reg_c, storing the result in f_reg_a
+    DIVF = 0x32,    // | 44 |  DIVF f_reg_a f_reg_b f_reg_c     | divide f_reg_b to f_reg_c, storing the result in f_reg_a
 }
 
 // Convert from a regular opcode integer into an enum
@@ -108,12 +130,21 @@ impl<T> From<T> for Instructions where T: Into<i32>{
 
             0x25 => Self::SETF,
 
+            0x26 => Self::MOVF,
+            0x27 => Self::MOVFI,
+            0x28 => Self::MOVIF,
+
+            0x29 => Self::ADDF,
+            0x30 => Self::SUBF,
+            0x31 => Self::MULF,
+            0x32 => Self::DIVF,
+
             _ => panic!("Error - value does not correspond to an instruction!")
         }
     }
 }
                         // Instruction, param count length in bytes - used by the VM to determine jumps and different size params (like 32 bit and so on)
-pub const OPCODE_TABLE: [(Instructions, u8); 38] = [
+pub const OPCODE_TABLE: [(Instructions, u8); 45] = [
     (Instructions::HLT, 0),
     (Instructions::PSH, 4),
     (Instructions::POP, 1),
@@ -158,5 +189,16 @@ pub const OPCODE_TABLE: [(Instructions, u8); 38] = [
     (Instructions::JNZR, 2),
 
     (Instructions::RET, 0),
+
     (Instructions::SETF, 5),
+
+    (Instructions::MOVF, 2),
+    (Instructions::MOVFI, 2),
+    (Instructions::MOVIF, 2),
+
+    
+    (Instructions::ADDF, 3),
+    (Instructions::SUBF, 3),
+    (Instructions::MULF, 3),
+    (Instructions::DIVF, 3),
 ];

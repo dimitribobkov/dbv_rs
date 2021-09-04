@@ -77,6 +77,7 @@ impl VirtualMachine{
         }
 
         println!("Registers at the end of running: {:?}", self.registers.registers);
+        println!("FP_Registers at the end of running: {:?}", self.registers.fp_registers);
 
         Ok(())
     }
@@ -111,7 +112,7 @@ impl VirtualMachine{
                 self.registers.set_register(params[0] as usize, final_value as i32);
             },
             Instructions::MOV => {
-                self.registers.set_register(params[0] as usize, self.registers.get_register(params[1] as usize));
+                self.registers.set_register(params[1] as usize, self.registers.get_register(params[0] as usize));
             },
             Instructions::SLT => {
                 self.registers.set_register(params[0] as usize, 
@@ -273,6 +274,28 @@ impl VirtualMachine{
 
             Instructions::RET => {
                 self.registers.set_instruction_pointer(self.registers.jump_pointer);
+            },
+
+            Instructions::SETF => {
+                // From bits converts our regular hex value to a proper floating point. Must be a u32 to work, so we cast it.
+                let value = f32::from_bits((params[1] << 24 | params[2] << 16 | params[3] << 8 | params[4]) as u32);
+                self.registers.set_f_register(params[0] as usize, value);     
+            },
+            
+            Instructions::MOVF => {
+                self.registers.set_f_register(params[0] as usize, self.registers.get_f_register(params[1] as usize));
+            },
+
+            Instructions::MOVFI => {
+                self.registers.set_register(params[1] as usize, self.registers.get_f_register(params[0] as usize) as i32);
+            },
+
+            Instructions::MOVIF => {
+                self.registers.set_f_register(params[1] as usize, self.registers.get_register(params[0] as usize) as f32);
+            },
+            
+            _ => {
+                println!("Warning: instruction {:?} has not been implemented!", instruction);
             }
         }
     }

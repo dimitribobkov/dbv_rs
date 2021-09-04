@@ -1,7 +1,7 @@
 pub struct Registers{
     pub registers: [i32; 6], // 6 general purpose registers
     
-    fp_registers: [f32; 6], // 6 general purpose floating point registers
+    pub fp_registers: [f32; 6], // 6 general purpose floating point registers
 
     pub jump_pointer: i32, // A special register to store the IP when jumping (so you can return from a jump)
 
