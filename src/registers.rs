@@ -75,7 +75,34 @@ impl Registers{
         self.stack_pointer
     }
 
-    pub fn set_exception_flag(&mut self, flag: u32){
-        self.exception_flags &= flag;
+
+    /* Exception register */
+
+    pub fn set_exception_register(&mut self, value: u32){
+        self.exception_register = value;
+    }
+
+    pub fn get_exception_register(&self) -> u32{
+        self.exception_register
+    }
+
+    /* Exception flags */
+
+    pub fn set_exception_flags(&mut self, value: u32){
+        self.exception_flags = value;
+    }
+
+    pub fn get_exception_flags(&self) -> u32{
+        self.exception_flags
+    }
+
+    /* Jump pointer */
+
+    pub fn set_jump_pointer(&mut self, value: i32){
+        self.jump_pointer = value;
+    }
+
+    pub fn get_jump_pointer(&self) -> i32{
+        self.jump_pointer
     }
 }

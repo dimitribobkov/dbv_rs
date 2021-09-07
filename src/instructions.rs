@@ -74,9 +74,21 @@ pub enum Instructions{
     // Arithemtic instructions
 
     ADDF = 0x29,    // | 41 |  ADDF f_reg_a f_reg_b f_reg_c     | add f_reg_b to f_reg_c, storing the result in f_reg_a
-    SUBF = 0x30,    // | 42 |  SUBF f_reg_a f_reg_b f_reg_c     | subtract f_reg_b to f_reg_c, storing the result in f_reg_a
-    MULF = 0x31,    // | 43 |  MULF f_reg_a f_reg_b f_reg_c     | multiply f_reg_b to f_reg_c, storing the result in f_reg_a
-    DIVF = 0x32,    // | 44 |  DIVF f_reg_a f_reg_b f_reg_c     | divide f_reg_b to f_reg_c, storing the result in f_reg_a
+    SUBF = 0x2A,    // | 42 |  SUBF f_reg_a f_reg_b f_reg_c     | subtract f_reg_b to f_reg_c, storing the result in f_reg_a
+    MULF = 0x2B,    // | 43 |  MULF f_reg_a f_reg_b f_reg_c     | multiply f_reg_b to f_reg_c, storing the result in f_reg_a
+    DIVF = 0x2C,    // | 44 |  DIVF f_reg_a f_reg_b f_reg_c     | divide f_reg_b to f_reg_c, storing the result in f_reg_a
+
+    ADDFI = 0x2D,   // | 41 |  ADDFI f_reg_a f_reg_b value      | add f_reg_b to value, storing the result in f_reg_a
+    SUBFI = 0x2E,   // | 42 |  SUBFI f_reg_a f_reg_b value      | subtract f_reg_b by value, storing the result in f_reg_a
+    MULFI = 0x2F,   // | 43 |  MULFI f_reg_a f_reg_b value      | multiply f_reg_b by value, storing the result in f_reg_a
+    DIVFI = 0x30,   // | 44 |  DIVFI f_reg_a f_reg_b value      | divide f_reg_b by value, storing the result in f_reg_a
+
+    EQ = 0x31,      // | 45 |  EQ reg_a reg_b reg_c             | set reg_a to 1 if reg_b == reg_c
+    NEQ = 0x32,
+    LEQ = 0x33,     // | 46 |  LEQ reg_a reg_b reg_c             | set reg_a to 1 if reg_b == reg_c
+    GEQ = 0x34,     // | 47 |  EQ reg_a reg_b reg_c             | set reg_a to 1 if reg_b == reg_c
+    LT = 0x35,      // | 48 |  EQ reg_a reg_b reg_c             | set reg_a to 1 if reg_b == reg_c
+    GT = 0x36,      // | 49 |  EQ reg_a reg_b reg_c             | set reg_a to 1 if reg_b == reg_c
 }
 
 // Convert from a regular opcode integer into an enum
@@ -135,9 +147,21 @@ impl<T> From<T> for Instructions where T: Into<i32>{
             0x28 => Self::MOVIF,
 
             0x29 => Self::ADDF,
-            0x30 => Self::SUBF,
-            0x31 => Self::MULF,
-            0x32 => Self::DIVF,
+            0x2A => Self::SUBF,
+            0x2B => Self::MULF,
+            0x2C => Self::DIVF,
+
+            0x2D => Self::ADDFI,
+            0x2E => Self::SUBFI,
+            0x2F => Self::MULFI,
+            0x30 => Self::DIVFI,
+
+            0x31 => Self::EQ,
+            0x32 => Self::NEQ,
+            0x33 => Self::LEQ,
+            0x34 => Self::GEQ,
+            0x35 => Self::LT,
+            0x36 => Self::GT,
 
             _ => panic!("Error - value does not correspond to an instruction!")
         }

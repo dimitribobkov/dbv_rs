@@ -6,10 +6,6 @@ main:
 
     move r_b, r_a
 
-
-
-    load r_c, 0xFFED
-
     .loop:
         jmp add_nums
         sw 0xFFED, r_a
@@ -17,9 +13,11 @@ main:
 
     lw r_a, 0xFFED
 
-    load f_r_a, 0x4079999a
+    load f_r_a, 0x40a00000
+        
+    load f_r_b, 0x4079999a
 
-    move f_r_a, r_c
+    add f_r_c, f_r_a, f_r_b
     
     hlt
 

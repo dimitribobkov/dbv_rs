@@ -69,4 +69,9 @@
     move f_r_{reg_a: register}, f_r_{reg_b: register}                       => 0x26 @ reg_a`8 @ reg_b`8 ; Copy the contents from freg a to freg b
     move f_r_{reg_a: register}, r_{reg_b: register}                         => 0x27 @ reg_a`8 @ reg_b`8 ; Copy the contents from freg a to reg b
     move r_{reg_a: register}, f_r_{reg_b: register}                         => 0x28 @ reg_a`8 @ reg_b`8 ; Copy the contents from reg a to freg b
+
+    add f_r_{reg_a: register}, f_r_{reg_b: register}, f_r_{reg_c: register} => 0x29 @ reg_a`8 @ reg_b`8 @ reg_c`8 ; reg_b + reg_c, storing the results in reg a
+    sub f_r_{reg_a: register}, f_r_{reg_b: register}, f_r_{reg_c: register} => 0x2A @ reg_a`8 @ reg_b`8 @ reg_c`8 ; reg_b - reg_c, storing the results in reg a
+    mul f_r_{reg_a: register}, f_r_{reg_b: register}, f_r_{reg_c: register} => 0x2B @ reg_a`8 @ reg_b`8 @ reg_c`8 ; reg_b * reg_c, storing the results in reg a
+    div f_r_{reg_a: register}, f_r_{reg_b: register}, f_r_{reg_c: register} => 0x2C @ reg_a`8 @ reg_b`8 @ reg_c`8 ; reg_b / reg_c, storing the results in reg a
 }   

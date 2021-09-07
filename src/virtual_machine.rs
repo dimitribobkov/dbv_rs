@@ -293,6 +293,26 @@ impl VirtualMachine{
             Instructions::MOVIF => {
                 self.registers.set_f_register(params[1] as usize, self.registers.get_register(params[0] as usize) as f32);
             },
+
+            Instructions::ADDF => {
+                let value = self.registers.get_f_register(params[1] as usize) + self.registers.get_f_register(params[2] as usize);
+                self.registers.set_f_register(params[0] as usize, value);
+            },
+
+            Instructions::SUBF => {
+                let value = self.registers.get_f_register(params[1] as usize) - self.registers.get_f_register(params[2] as usize);
+                self.registers.set_f_register(params[0] as usize, value);
+            },
+
+            Instructions::MULF => {
+                let value = self.registers.get_f_register(params[1] as usize) * self.registers.get_f_register(params[2] as usize);
+                self.registers.set_f_register(params[0] as usize, value);
+            },
+
+            Instructions::DIVF => {
+                let value = self.registers.get_f_register(params[1] as usize) / self.registers.get_f_register(params[2] as usize);
+                self.registers.set_f_register(params[0] as usize, value);
+            },
             
             _ => {
                 println!("Warning: instruction {:?} has not been implemented!", instruction);
