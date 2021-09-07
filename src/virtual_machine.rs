@@ -79,6 +79,8 @@ impl VirtualMachine{
         println!("Registers at the end of running: {:?}", self.registers.registers);
         println!("FP_Registers at the end of running: {:?}", self.registers.fp_registers);
 
+        println!("\nPC: {}\nSP: {}", self.registers.get_instruction_pointer(), self.registers.get_stack_pointer());
+
         Ok(())
     }
 
@@ -100,8 +102,8 @@ impl VirtualMachine{
             },
             Instructions::PSH => {
                 let final_value = params[0] << 24 | params[1] << 16 | params[2] << 8 | params[3];
-                self.memory.push_to_stack(final_value, self.registers.get_stack_pointer());
                 self.registers.increment_stack_pointer();
+                self.memory.push_to_stack(final_value, self.registers.get_stack_pointer());
             },
             Instructions::POP => {
                 self.registers.set_register(params[0] as usize, self.memory.pop_from_stack(self.registers.get_stack_pointer()) as i32); 
@@ -273,7 +275,7 @@ impl VirtualMachine{
             },
 
             Instructions::RET => {
-                self.registers.set_instruction_pointer(self.registers.jump_pointer);
+                self.registers.set_instruction_pointer(self.registers.get_jump_pointer());
             },
 
             Instructions::SETF => {
@@ -334,6 +336,60 @@ impl VirtualMachine{
                 self.registers.set_f_register(params[0] as usize, value);
             },
 
+            Instructions::EQ => {
+                if self.registers.get_register(params[1] as usize) == self.registers.get_register(params[2] as usize){
+                    self.registers.set_register(params[0] as usize, 1);
+                }else{
+                    self.registers.set_register(params[0] as usize, 0);
+                }
+            },
+
+            Instructions::NEQ => {
+                if self.registers.get_register(params[1] as usize) != self.registers.get_register(params[2] as usize){
+                    self.registers.set_register(params[0] as usize, 1);
+                }else{
+                    self.registers.set_register(params[0] as usize, 0);
+                }
+            },
+
+            Instructions::LEQ => {
+                if self.registers.get_register(params[1] as usize) <= self.registers.get_register(params[2] as usize){
+                    self.registers.set_register(params[0] as usize, 1);
+                }else{
+                    self.registers.set_register(params[0] as usize, 0);
+                }
+            },
+
+            Instructions::GEQ => {
+                if self.registers.get_register(params[1] as usize) >= self.registers.get_register(params[2] as usize){
+                    self.registers.set_register(params[0] as usize, 1);
+                }else{
+                    self.registers.set_register(params[0] as usize, 0);
+                }
+            },
+
+            Instructions::LT => {
+                if self.registers.get_register(params[1] as usize) < self.registers.get_register(params[2] as usize){
+                    self.registers.set_register(params[0] as usize, 1);
+                }else{
+                    self.registers.set_register(params[0] as usize, 0);
+                }
+            },
+
+            Instructions::GT => {
+                if self.registers.get_register(params[1] as usize) > self.registers.get_register(params[2] as usize){
+                    self.registers.set_register(params[0] as usize, 1);
+                }else{
+                    self.registers.set_register(params[0] as usize, 0);
+                }
+            },
+
+            Instructions::PSHR => {
+                let value = self.registers.get_register(params[0] as usize);
+                self.registers.increment_stack_pointer();
+                self.memory.push_to_stack(value, self.registers.stack_pointer);
+            },
+
             _ => {
                 println!("Warning: instruction {:?} has not been implemented!", instruction);
             }
@@ -357,7 +413,7 @@ impl VirtualMachine{
         addr -= param_count;
 
         
-        self.registers.jump_pointer = self.registers.get_instruction_pointer() as i32;
+        self.registers.set_jump_pointer(self.registers.get_instruction_pointer() as i32);
         self.registers.set_instruction_pointer(addr as i32);
         self.has_jumped = true;
     }
@@ -402,7 +458,7 @@ impl VirtualMachine{
         }
 
 
-        self.registers.jump_pointer = self.registers.get_instruction_pointer() as i32;
+        self.registers.set_jump_pointer(self.registers.get_instruction_pointer() as i32);
         self.registers.set_instruction_pointer(addr as i32);
         self.has_jumped = true;
     }

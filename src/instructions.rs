@@ -89,6 +89,8 @@ pub enum Instructions{
     GEQ = 0x34,     // | 48 |  GEQ reg_a reg_b reg_c            | set reg_a to 1 if reg_b >= reg_c, else 0
     LT = 0x35,      // | 49 |  LT reg_a reg_b reg_c             | set reg_a to 1 if reg_b < reg_c, else 0
     GT = 0x36,      // | 50 |  GT reg_a reg_b reg_c             | set reg_a to 1 if reg_b > reg_c, else 0
+
+    PSHR = 0x37,    // | 51  |  PSH val                         | Push the register's value to stack
 }
 
 // Convert from a regular opcode integer into an enum
@@ -163,12 +165,15 @@ impl<T> From<T> for Instructions where T: Into<i32>{
             0x35 => Self::LT,
             0x36 => Self::GT,
 
+
+            0x37 => Self::PSHR,
+
             _ => panic!("Error - value does not correspond to an instruction!")
         }
     }
 }
                         // Instruction, param count length in bytes - used by the VM to determine jumps and different size params (like 32 bit and so on)
-pub const OPCODE_TABLE: [(Instructions, u8); 55] = [
+pub const OPCODE_TABLE: [(Instructions, u8); 56] = [
     (Instructions::HLT, 0),
     (Instructions::PSH, 4),
     (Instructions::POP, 1),
@@ -237,4 +242,6 @@ pub const OPCODE_TABLE: [(Instructions, u8); 55] = [
     (Instructions::GEQ, 3),
     (Instructions::LT, 3),
     (Instructions::GT, 3),
+
+    (Instructions::PSHR, 1),
 ];

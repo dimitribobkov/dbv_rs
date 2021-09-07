@@ -12,7 +12,7 @@ use std::io::{Read, Write};
 
 fn main() {
     let mut vm = VirtualMachine::new();
-    vm.load_program("./test.dbv").unwrap();
+    vm.load_program("./program/test.dbv").unwrap();
 
     vm.run().unwrap();
 
