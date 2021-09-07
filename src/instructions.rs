@@ -83,12 +83,12 @@ pub enum Instructions{
     MULFI = 0x2F,   // | 43 |  MULFI f_reg_a f_reg_b value      | multiply f_reg_b by value, storing the result in f_reg_a
     DIVFI = 0x30,   // | 44 |  DIVFI f_reg_a f_reg_b value      | divide f_reg_b by value, storing the result in f_reg_a
 
-    EQ = 0x31,      // | 45 |  EQ reg_a reg_b reg_c             | set reg_a to 1 if reg_b == reg_c
-    NEQ = 0x32,
-    LEQ = 0x33,     // | 46 |  LEQ reg_a reg_b reg_c             | set reg_a to 1 if reg_b == reg_c
-    GEQ = 0x34,     // | 47 |  EQ reg_a reg_b reg_c             | set reg_a to 1 if reg_b == reg_c
-    LT = 0x35,      // | 48 |  EQ reg_a reg_b reg_c             | set reg_a to 1 if reg_b == reg_c
-    GT = 0x36,      // | 49 |  EQ reg_a reg_b reg_c             | set reg_a to 1 if reg_b == reg_c
+    EQ = 0x31,      // | 45 |  EQ reg_a reg_b reg_c             | set reg_a to 1 if reg_b == reg_c, else 0
+    NEQ = 0x32,     // | 46 |  NEQ reg_a reg_b reg_c            | set reg_a to 1 if reg_b != reg_c, else 0
+    LEQ = 0x33,     // | 47 |  LEQ reg_a reg_b reg_c            | set reg_a to 1 if reg_b <= reg_c, else 0
+    GEQ = 0x34,     // | 48 |  GEQ reg_a reg_b reg_c            | set reg_a to 1 if reg_b >= reg_c, else 0
+    LT = 0x35,      // | 49 |  LT reg_a reg_b reg_c             | set reg_a to 1 if reg_b < reg_c, else 0
+    GT = 0x36,      // | 50 |  GT reg_a reg_b reg_c             | set reg_a to 1 if reg_b > reg_c, else 0
 }
 
 // Convert from a regular opcode integer into an enum
@@ -168,7 +168,7 @@ impl<T> From<T> for Instructions where T: Into<i32>{
     }
 }
                         // Instruction, param count length in bytes - used by the VM to determine jumps and different size params (like 32 bit and so on)
-pub const OPCODE_TABLE: [(Instructions, u8); 45] = [
+pub const OPCODE_TABLE: [(Instructions, u8); 55] = [
     (Instructions::HLT, 0),
     (Instructions::PSH, 4),
     (Instructions::POP, 1),
@@ -225,4 +225,16 @@ pub const OPCODE_TABLE: [(Instructions, u8); 45] = [
     (Instructions::SUBF, 3),
     (Instructions::MULF, 3),
     (Instructions::DIVF, 3),
+
+    (Instructions::ADDFI, 6),
+    (Instructions::SUBFI, 6),
+    (Instructions::MULFI, 6),
+    (Instructions::DIVFI, 6),
+
+    (Instructions::EQ, 3),
+    (Instructions::NEQ, 3),
+    (Instructions::LEQ, 3),
+    (Instructions::GEQ, 3),
+    (Instructions::LT, 3),
+    (Instructions::GT, 3),
 ];

@@ -74,4 +74,9 @@
     sub f_r_{reg_a: register}, f_r_{reg_b: register}, f_r_{reg_c: register} => 0x2A @ reg_a`8 @ reg_b`8 @ reg_c`8 ; reg_b - reg_c, storing the results in reg a
     mul f_r_{reg_a: register}, f_r_{reg_b: register}, f_r_{reg_c: register} => 0x2B @ reg_a`8 @ reg_b`8 @ reg_c`8 ; reg_b * reg_c, storing the results in reg a
     div f_r_{reg_a: register}, f_r_{reg_b: register}, f_r_{reg_c: register} => 0x2C @ reg_a`8 @ reg_b`8 @ reg_c`8 ; reg_b / reg_c, storing the results in reg a
+
+    add f_r_{reg_a: register}, f_r_{reg_b: register}, {value: s32} => 0x2D @ reg_a`8 @ reg_b`8 @ value ; reg_b + value, storing the results in reg a
+    sub f_r_{reg_a: register}, f_r_{reg_b: register}, {value: s32} => 0x2E @ reg_a`8 @ reg_b`8 @ value; reg_b - value, storing the results in reg a
+    mul f_r_{reg_a: register}, f_r_{reg_b: register}, {value: s32} => 0x2F @ reg_a`8 @ reg_b`8 @ value ; reg_b * value, storing the results in reg a
+    div f_r_{reg_a: register}, f_r_{reg_b: register}, {value: s32} => 0x30 @ reg_a`8 @ reg_b`8 @ value ; reg_b / value, storing the results in reg a
 }   

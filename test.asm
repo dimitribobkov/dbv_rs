@@ -13,7 +13,7 @@ main:
 
     lw r_a, 0xFFED
 
-    load f_r_a, 0x40a00000
+    ;load f_r_a, 0x40a00000
         
     load f_r_b, 0x4079999a
 
@@ -24,4 +24,5 @@ main:
 
 add_nums:
     add r_a, r_a, r_b
+    add f_r_a, f_r_a, 0x4079999a
     ret
