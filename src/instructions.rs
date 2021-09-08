@@ -133,6 +133,8 @@ pub enum Instructions{
 
     // Exceptions!
 
+    SEX = 0x4F,   // | 79  |  SEX flag addr                         | If the exception defined by the flag is triggered, go to the handler (addr)
+
     
 }
 
