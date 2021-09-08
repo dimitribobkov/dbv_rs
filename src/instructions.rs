@@ -60,37 +60,80 @@ pub enum Instructions{
 
     // _______________________________________________________________________________________________
     // *Floating point instructions - these use a different set of registers to perform calculations*
+    //
+    // We won't have any bit operations as it would mess up the floating point calculation
     // _______________________________________________________________________________________________
 
 
-    SETF = 0x25,    // | 37 |  SETF f_reg val                   | Set a fp reg to val (also an f)
-    MOVF = 0x26,    // | 38 |  MOVF f_reg_a f_reg_b             | Move f_reg_a to f_reg_b
+    SETF = 0x25,    // | 37 |  SETF f_reg val                   | Set a fp reg to val (also an f) (FP operation)
+    MOVF = 0x26,    // | 38 |  MOVF f_reg_a f_reg_b             | Move f_reg_a to f_reg_b (FP operation)
     
     // These instructions allow you to move data between integer and floating point registers
 
-    MOVFI = 0x27,   // | 39 |  MOVFI f_reg_a reg_b              | Move f_reg_a to reg_b (warning - this will round the float to the nearest integer)
-    MOVIF = 0x28,   // | 40 |  MOVIF reg_a f_reg_b              | Move reg_a to f_reg_b 
+    MOVFI = 0x27,   // | 39 |  MOVFI f_reg_a reg_b              | Move f_reg_a to reg_b (warning - this will round the float to the nearest integer) (FP operation)
+    MOVIF = 0x28,   // | 40 |  MOVIF reg_a f_reg_b              | Move reg_a to f_reg_b (FP operation)
 
     // Arithemtic instructions
 
-    ADDF = 0x29,    // | 41 |  ADDF f_reg_a f_reg_b f_reg_c     | add f_reg_b to f_reg_c, storing the result in f_reg_a
-    SUBF = 0x2A,    // | 42 |  SUBF f_reg_a f_reg_b f_reg_c     | subtract f_reg_b to f_reg_c, storing the result in f_reg_a
-    MULF = 0x2B,    // | 43 |  MULF f_reg_a f_reg_b f_reg_c     | multiply f_reg_b to f_reg_c, storing the result in f_reg_a
-    DIVF = 0x2C,    // | 44 |  DIVF f_reg_a f_reg_b f_reg_c     | divide f_reg_b to f_reg_c, storing the result in f_reg_a
+    ADDF = 0x29,    // | 41 |  ADDF f_reg_a f_reg_b f_reg_c     | add f_reg_b to f_reg_c, storing the result in f_reg_a (FP operation)
+    SUBF = 0x2A,    // | 42 |  SUBF f_reg_a f_reg_b f_reg_c     | subtract f_reg_b to f_reg_c, storing the result in f_reg_a (FP operation)
+    MULF = 0x2B,    // | 43 |  MULF f_reg_a f_reg_b f_reg_c     | multiply f_reg_b to f_reg_c, storing the result in f_reg_a (FP operation)
+    DIVF = 0x2C,    // | 44 |  DIVF f_reg_a f_reg_b f_reg_c     | divide f_reg_b to f_reg_c, storing the result in f_reg_a (FP operation)
 
-    ADDFI = 0x2D,   // | 41 |  ADDFI f_reg_a f_reg_b value      | add f_reg_b to value, storing the result in f_reg_a
-    SUBFI = 0x2E,   // | 42 |  SUBFI f_reg_a f_reg_b value      | subtract f_reg_b by value, storing the result in f_reg_a
-    MULFI = 0x2F,   // | 43 |  MULFI f_reg_a f_reg_b value      | multiply f_reg_b by value, storing the result in f_reg_a
-    DIVFI = 0x30,   // | 44 |  DIVFI f_reg_a f_reg_b value      | divide f_reg_b by value, storing the result in f_reg_a
+    ADDFI = 0x2D,   // | 45 |  ADDFI f_reg_a f_reg_b value      | add f_reg_b to value, storing the result in f_reg_a (FP operation)
+    SUBFI = 0x2E,   // | 46 |  SUBFI f_reg_a f_reg_b value      | subtract f_reg_b by value, storing the result in f_reg_a (FP operation)
+    MULFI = 0x2F,   // | 47 |  MULFI f_reg_a f_reg_b value      | multiply f_reg_b by value, storing the result in f_reg_a (FP operation)
+    DIVFI = 0x30,   // | 48 |  DIVFI f_reg_a f_reg_b value      | divide f_reg_b by value, storing the result in f_reg_a (FP operation)
 
-    EQ = 0x31,      // | 45 |  EQ reg_a reg_b reg_c             | set reg_a to 1 if reg_b == reg_c, else 0
-    NEQ = 0x32,     // | 46 |  NEQ reg_a reg_b reg_c            | set reg_a to 1 if reg_b != reg_c, else 0
-    LEQ = 0x33,     // | 47 |  LEQ reg_a reg_b reg_c            | set reg_a to 1 if reg_b <= reg_c, else 0
-    GEQ = 0x34,     // | 48 |  GEQ reg_a reg_b reg_c            | set reg_a to 1 if reg_b >= reg_c, else 0
-    LT = 0x35,      // | 49 |  LT reg_a reg_b reg_c             | set reg_a to 1 if reg_b < reg_c, else 0
-    GT = 0x36,      // | 50 |  GT reg_a reg_b reg_c             | set reg_a to 1 if reg_b > reg_c, else 0
+    LDWF = 0x31,    // | 49 |  LDWF f_reg mem_addr              | Loads data (f32) from a memory address (uint16_t), storing in a register (FP operation)
+    SDWF = 0x32,    // | 50 |  SDWF mem_addr f_reg              | Stores data (f32) from a register into memory  at the given address (uint16_t) (FP operation)
 
-    PSHR = 0x37,    // | 51  |  PSH val                         | Push the register's value to stack
+    // Branching instructions
+
+    IFF = 0x33,     // | 51 |  IFF f_reg val addr               | If reg == val, goto addr (FP operation)
+    IFNF = 0x34,    // | 52 |  IFNF f_reg val addr              | If reg != val, goto addr (FP operation)
+    JNZF = 0x35,    // | 53 |  JNZF f_reg addr                  | Jumps to addr if reg is not 0 (FP operation)
+
+    IFRF = 0x36,    // | 54 |  IFRF f_reg val rel_addr          | Relative jump to rel_addr if reg == val (FP operation)
+    IFNRF = 0x37,   // | 55 |  IFNRF f_reg val rel_addr         | Relative jump to rel_addr if reg != val (FP operation)
+    JNZRF = 0x38,   // | 56 |  JNZRF f_reg rel_addr             | Relative jump to addr if reg is not 0 (FP operation)
+
+    // Equality testing
+
+    EQ = 0x39,      // | 57 |  EQ reg_a reg_b reg_c             | set reg_a to 1 if reg_b == reg_c, else 0
+    NEQ = 0x3A,     // | 58 |  NEQ reg_a reg_b reg_c            | set reg_a to 1 if reg_b != reg_c, else 0
+    LEQ = 0x3B,     // | 59 |  LEQ reg_a reg_b reg_c            | set reg_a to 1 if reg_b <= reg_c, else 0
+    GEQ = 0x3C,     // | 60 |  GEQ reg_a reg_b reg_c            | set reg_a to 1 if reg_b >= reg_c, else 0
+    LT = 0x3D,      // | 61 |  LT reg_a reg_b reg_c             | set reg_a to 1 if reg_b < reg_c, else 0
+    GT = 0x3E,      // | 62 |  GT reg_a reg_b reg_c             | set reg_a to 1 if reg_b > reg_c, else 0
+
+    EQF = 0x3F,     // | 63 |  EQF f_reg_a f_reg_b f_reg_c      | set reg_a to 1 if reg_b == reg_c, else 0 (FP operation)
+    NEQF = 0x40,    // | 64 |  NEQF f_reg_a f_reg_b f_reg_c     | set reg_a to 1 if reg_b != reg_c, else 0 (FP operation)
+    LEQF = 0x41,    // | 65 |  LEQF f_reg_a f_reg_b f_reg_c     | set reg_a to 1 if reg_b <= reg_c, else 0 (FP operation)
+    GEQF = 0x42,    // | 66 |  GEQF f_reg_a f_reg_b f_reg_c     | set reg_a to 1 if reg_b >= reg_c, else 0 (FP operation)
+    LTF = 0x43,     // | 67 |  LTF f_reg_a f_reg_b f_reg_c      | set reg_a to 1 if reg_b < reg_c, else 0 (FP operation)
+    GTF = 0x44,     // | 68 |  GTF f_reg_a f_reg_b f_reg_c      | set reg_a to 1 if reg_b > reg_c, else 0 (FP operation)
+    
+    
+    PSHR = 0x45,    // | 69  |  PSH val                         | Push the register's value to stack
+
+    // Floating point specific instructions
+
+    REC = 0x46,    // | 70  |  REC f_reg_a f_reg_b                  | stores the reciprocal of reg_a into reg_b
+    SQRT = 0x47,   // | 71  |  SQRT f_reg_a f_reg_b                 | stores the square root of reg_a into reg_b
+    RND = 0x48,    // | 72  |  RND f_reg_a f_reg_b                  | stores the rounded value of reg_a into reg_b
+
+    SIN = 0x49,    // | 73  |  SIN f_reg_a f_reg_b                  | stores the sine of reg_a into reg_b
+    COS = 0x4A,    // | 74  |  SIN f_reg_a f_reg_b                  | stores the cosine of reg_a into reg_b
+    TAN = 0x4B,    // | 75  |  TAN f_reg_a f_reg_b                  | stores the tangent of reg_a into reg_b
+
+    ASIN = 0x4C,   // | 76  |  ASIN f_reg_a f_reg_b                 | stores the arcsine of reg_a into reg_b
+    ACOS = 0x4D,   // | 77  |  ASIN f_reg_a f_reg_b                 | stores the arccosine of reg_a into reg_b
+    ATAN = 0x4E,   // | 78  |  ATAN f_reg_a f_reg_b                 | stores the arctangent of reg_a into reg_b
+
+    // Exceptions!
+
+    
 }
 
 // Convert from a regular opcode integer into an enum
@@ -158,22 +201,39 @@ impl<T> From<T> for Instructions where T: Into<i32>{
             0x2F => Self::MULFI,
             0x30 => Self::DIVFI,
 
-            0x31 => Self::EQ,
-            0x32 => Self::NEQ,
-            0x33 => Self::LEQ,
-            0x34 => Self::GEQ,
-            0x35 => Self::LT,
-            0x36 => Self::GT,
+            0x31 => Self::LDWF,
+            0x32 => Self::SDWF,
 
+            0x33 => Self::IFF,
+            0x34 => Self::IFNF,
+            0x35 => Self::IFRF,
+            0x36 => Self::IFNRF,
 
-            0x37 => Self::PSHR,
+            0x37 => Self::JNZF,
+            0x38 => Self::JNZRF,
+
+            0x39 => Self::EQ,
+            0x3A => Self::NEQ,
+            0x3B => Self::LEQ,
+            0x3C => Self::GEQ,
+            0x3D => Self::LT,
+            0x3E => Self::GT,
+
+            0x3F => Self::EQF,
+            0x40 => Self::NEQF,
+            0x41 => Self::LEQF,
+            0x42 => Self::GEQF,
+            0x43 => Self::LTF,
+            0x44 => Self::GTF,
+
+            0x45 => Self::PSHR,
 
             _ => panic!("Error - value does not correspond to an instruction!")
         }
     }
 }
                         // Instruction, param count length in bytes - used by the VM to determine jumps and different size params (like 32 bit and so on)
-pub const OPCODE_TABLE: [(Instructions, u8); 56] = [
+pub const OPCODE_TABLE: [(Instructions, u8); 70] = [
     (Instructions::HLT, 0),
     (Instructions::PSH, 4),
     (Instructions::POP, 1),
@@ -236,12 +296,30 @@ pub const OPCODE_TABLE: [(Instructions, u8); 56] = [
     (Instructions::MULFI, 6),
     (Instructions::DIVFI, 6),
 
+    (Instructions::LDWF, 3),
+    (Instructions::SDWF, 3),
+
+    (Instructions::IFF, 7),
+    (Instructions::IFNF, 7),
+    (Instructions::JNZF, 3),
+
+    (Instructions::IFRF, 6),
+    (Instructions::IFNRF, 6),
+    (Instructions::JNZRF, 2),
+
     (Instructions::EQ, 3),
     (Instructions::NEQ, 3),
     (Instructions::LEQ, 3),
     (Instructions::GEQ, 3),
     (Instructions::LT, 3),
     (Instructions::GT, 3),
+
+    (Instructions::EQF, 3),
+    (Instructions::NEQF, 3),
+    (Instructions::LEQF, 3),
+    (Instructions::GEQF, 3),
+    (Instructions::LTF, 3),
+    (Instructions::GTF, 3),
 
     (Instructions::PSHR, 1),
 ];

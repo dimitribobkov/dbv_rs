@@ -231,10 +231,12 @@ impl VirtualMachine{
                     self.handle_jump(final_value);
                 }
             },
+
             Instructions::JMP => {
                 let final_value = (params[0] << 8 | params[1]) as usize;
                 self.handle_jump(final_value);
             },
+
             Instructions::JNZ => {
                 if self.registers.get_register(params[0] as usize) != 0{
                     let final_value = (params[1] << 8 | params[2]) as usize;
@@ -336,6 +338,50 @@ impl VirtualMachine{
                 self.registers.set_f_register(params[0] as usize, value);
             },
 
+            Instructions::LDWF => {
+                let final_value = params[1] << 8 | params[2];
+                self.registers.set_f_register(params[0] as usize, f32::from_bits(self.memory.read_word(final_value as usize)));
+            },
+            Instructions::SDWF => {
+                let final_value = params[0] << 8 | params[1];
+                self.memory.write_word(final_value as usize, self.registers.get_f_register(params[2] as usize) as u32);
+            },
+
+            Instructions::IFF => {
+                let value = params[1] << 24 | params[2] << 16 | params[3] << 8 | params[4];
+                if self.registers.get_f_register(params[0] as usize) == f32::from_bits(value as u32){
+                    let final_value = (params[5] << 8 | params[6]) as usize;
+
+                    self.handle_jump(final_value);
+                }
+            },
+            Instructions::IFNF => {
+                let value = params[1] << 24 | params[2] << 16 | params[3] << 8 | params[4];
+                if self.registers.get_f_register(params[0] as usize) != f32::from_bits(value as u32){
+                    let final_value = (params[5] << 8 | params[6]) as usize;
+
+                    self.handle_jump(final_value);
+                }
+            },
+
+            Instructions::IFRF => {
+                let value = params[1] << 24 | params[2] << 16 | params[3] << 8 | params[4];
+                if self.registers.get_f_register(params[0] as usize) == f32::from_bits(value as u32){
+                    let final_value = params[5] as i8 as isize;
+
+                    self.handle_relative_jump(final_value);
+                }
+            },
+            Instructions::IFNRF => {
+                let value = params[1] << 24 | params[2] << 16 | params[3] << 8 | params[4];
+
+                if self.registers.get_f_register(params[0] as usize) != f32::from_bits(value as u32){
+                    let final_value = params[5] as i8 as isize;
+
+                    self.handle_relative_jump(final_value);
+                }
+            },
+
             Instructions::EQ => {
                 if self.registers.get_register(params[1] as usize) == self.registers.get_register(params[2] as usize){
                     self.registers.set_register(params[0] as usize, 1);
@@ -381,6 +427,54 @@ impl VirtualMachine{
                     self.registers.set_register(params[0] as usize, 1);
                 }else{
                     self.registers.set_register(params[0] as usize, 0);
+                }
+            },
+
+            Instructions::EQF => {
+                if self.registers.get_f_register(params[1] as usize) == self.registers.get_f_register(params[2] as usize){
+                    self.registers.set_f_register(params[0] as usize, 1.0);
+                }else{
+                    self.registers.set_f_register(params[0] as usize, 0.0);
+                }
+            },
+
+            Instructions::NEQF => {
+                if self.registers.get_f_register(params[1] as usize) != self.registers.get_f_register(params[2] as usize){
+                    self.registers.set_f_register(params[0] as usize, 1.0);
+                }else{
+                    self.registers.set_f_register(params[0] as usize, 0.0);
+                }
+            },
+
+            Instructions::LEQF => {
+                if self.registers.get_f_register(params[1] as usize) <= self.registers.get_f_register(params[2] as usize){
+                    self.registers.set_f_register(params[0] as usize, 1.0);
+                }else{
+                    self.registers.set_f_register(params[0] as usize, 0.0);
+                }
+            },
+
+            Instructions::GEQF => {
+                if self.registers.get_f_register(params[1] as usize) >= self.registers.get_f_register(params[2] as usize){
+                    self.registers.set_f_register(params[0] as usize, 1.0);
+                }else{
+                    self.registers.set_f_register(params[0] as usize, 0.0);
+                }
+            },
+
+            Instructions::LTF => {
+                if self.registers.get_f_register(params[1] as usize) < self.registers.get_f_register(params[2] as usize){
+                    self.registers.set_f_register(params[0] as usize, 1.0);
+                }else{
+                    self.registers.set_f_register(params[0] as usize, 0.0);
+                }
+            },
+
+            Instructions::GTF => {
+                if self.registers.get_f_register(params[1] as usize) > self.registers.get_f_register(params[2] as usize){
+                    self.registers.set_f_register(params[0] as usize, 0.0);
+                }else{
+                    self.registers.set_f_register(params[0] as usize, 0.0);
                 }
             },
 

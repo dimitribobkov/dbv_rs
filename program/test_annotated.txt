@@ -5,18 +5,30 @@
   6:0 |    6 | 03 01 00 00 00 19 ; load r_b, 25
   c:0 |    c | 04 01 00    ; move r_b, r_a
   f:0 |    f |             ; .loop:
-  f:0 |    f | 22 26       ; jmp add_nums
+  f:0 |    f | 22 53       ; jmp add_nums
  11:0 |   11 | 21 00 00 01 e8 48 fe ; ifn r_a, 250*500, .loop
  18:0 |   18 | 25 01 40 79 99 9a ; load f_r_b, 0x4079999a
  1e:0 |   1e | 2d 02 00 00 00 00 00 ; add f_r_c, f_r_a, 0
  25:0 |   25 | 04 00 01    ; move r_a, r_b
- 28:0 |   28 | 31 05 01 00 ; eq r_f, r_b, r_a
- 2c:0 |   2c | 37 00       ; push r_a
- 2e:0 |   2e | 37 01       ; push r_b
+ 28:0 |   28 | 39 05 01 00 ; eq r_f, r_b, r_a
+ 2c:0 |   2c | 45 00       ; push r_a
+ 2e:0 |   2e | 45 01       ; push r_b
  30:0 |   30 | 02 02       ; pop r_c
  32:0 |   32 | 02 03       ; pop r_d
- 34:0 |   34 | 00          ; hlt
- 35:0 |   35 |             ; add_nums:
- 35:0 |   35 | 06 00 00 01 ; add r_a, r_a, r_b
- 39:0 |   39 | 2d 00 00 40 79 99 9a ; add f_r_a, f_r_a, 0x4079999a
- 40:0 |   40 | 24          ; ret
+ 34:0 |   34 | 35 00 46 98 52 2d 3a ; if f_r_a, 0x4698522d, test_floating_point_jumps
+ 3b:0 |   3b | 25 02 00 00 00 00 ; load f_r_c, 0
+ 41:0 |   41 | 25 03 00 00 00 00 ; load f_r_d, 0
+ 47:0 |   47 | 2c 04 02 03 ; div f_r_e, f_r_c, f_r_d
+ 4b:0 |   4b | 32 ff e0 04 ; sw 0xFFE0, f_r_e
+ 4f:0 |   4f | 25 05 00 00 00 05 ; load f_r_f, 5
+ 55:0 |   55 | 32 ff e1 05 ; sw 0xFFE1, f_r_f
+ 59:0 |   59 | 31 02 ff e0 ; lw f_r_c, 0xFFE0
+ 5d:0 |   5d | 31 03 ff e1 ; lw f_r_d, 0xFFE1
+ 61:0 |   61 | 00          ; hlt
+ 62:0 |   62 |             ; add_nums:
+ 62:0 |   62 | 06 00 00 01 ; add r_a, r_a, r_b
+ 66:0 |   66 | 2d 00 00 40 79 99 9a ; add f_r_a, f_r_a, 0x4079999a
+ 6d:0 |   6d | 24          ; ret
+ 6e:0 |   6e |             ; test_floating_point_jumps:
+ 6e:0 |   6e | 25 05 46 98 52 2d ; load f_r_f, 0x4698522d
+ 74:0 |   74 | 24          ; ret

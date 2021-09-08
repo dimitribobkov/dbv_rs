@@ -32,6 +32,24 @@ main:
     pop r_c
     pop r_d
 
+    if f_r_a, 0x4698522d, test_floating_point_jumps
+
+    load f_r_c, 0
+    load f_r_d, 0
+
+    div f_r_e, f_r_c, f_r_d
+
+    sw 0xFFE0, f_r_e
+
+    load f_r_f, 5
+    sw 0xFFE1, f_r_f
+
+    lw f_r_c, 0xFFE0
+    lw f_r_d, 0xFFE1
+
+    ;move f_r_d, f_r_e
+    
+
     ; Halt!
 
     hlt
@@ -43,4 +61,8 @@ add_nums:
 
     add f_r_a, f_r_a, 0x4079999a
 
+    ret
+
+test_floating_point_jumps:
+    load f_r_f, 0x4698522d
     ret
