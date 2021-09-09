@@ -119,23 +119,23 @@ pub enum Instructions{
 
     // Floating point specific instructions
 
-    REC = 0x46,    // | 70  |  REC f_reg_a f_reg_b                  | stores the reciprocal of reg_a into reg_b
-    SQRT = 0x47,   // | 71  |  SQRT f_reg_a f_reg_b                 | stores the square root of reg_a into reg_b
-    RND = 0x48,    // | 72  |  RND f_reg_a f_reg_b                  | stores the rounded value of reg_a into reg_b
+    REC = 0x46,    // | 70  |  REC f_reg_a f_reg_b                  | stores the reciprocal of reg_b into reg_a
+    SQRT = 0x47,   // | 71  |  SQRT f_reg_a f_reg_b                 | stores the square root of reg_b into reg_a
+    RND = 0x48,    // | 72  |  RND f_reg_a f_reg_b                  | stores the rounded value of reg_b into reg_a
 
-    SIN = 0x49,    // | 73  |  SIN f_reg_a f_reg_b                  | stores the sine of reg_a into reg_b
-    COS = 0x4A,    // | 74  |  SIN f_reg_a f_reg_b                  | stores the cosine of reg_a into reg_b
-    TAN = 0x4B,    // | 75  |  TAN f_reg_a f_reg_b                  | stores the tangent of reg_a into reg_b
+    SIN = 0x49,    // | 73  |  SIN f_reg_a f_reg_b                  | stores the sine of reg_b into reg_a
+    COS = 0x4A,    // | 74  |  SIN f_reg_a f_reg_b                  | stores the cosine of reg_b into reg_a
+    TAN = 0x4B,    // | 75  |  TAN f_reg_a f_reg_b                  | stores the tangent of reg_b into reg_a
 
-    ASIN = 0x4C,   // | 76  |  ASIN f_reg_a f_reg_b                 | stores the arcsine of reg_a into reg_b
-    ACOS = 0x4D,   // | 77  |  ASIN f_reg_a f_reg_b                 | stores the arccosine of reg_a into reg_b
-    ATAN = 0x4E,   // | 78  |  ATAN f_reg_a f_reg_b                 | stores the arctangent of reg_a into reg_b
+    ASIN = 0x4C,   // | 76  |  ASIN f_reg_a f_reg_b                 | stores the arcsine of reg_b into reg_a
+    ACOS = 0x4D,   // | 77  |  ASIN f_reg_a f_reg_b                 | stores the arccosine of reg_b into reg_a
+    ATAN = 0x4E,   // | 78  |  ATAN f_reg_a f_reg_b                 | stores the arctangent of reg_b into reg_a
 
     // Exceptions!
-
+    
     SEX = 0x4F,   // | 79  |  SEX flag addr                         | If the exception defined by the flag is triggered, go to the handler (addr)
 
-    
+
 }
 
 // Convert from a regular opcode integer into an enum
@@ -230,12 +230,26 @@ impl<T> From<T> for Instructions where T: Into<i32>{
 
             0x45 => Self::PSHR,
 
+            0x46 => Self::REC,
+            0x47 => Self::SQRT,
+            0x48 => Self::RND,
+
+            0x49 => Self::SIN,
+            0x4A => Self::COS,
+            0x4B => Self::TAN,
+
+            0x4C => Self::ASIN,
+            0x4D => Self::ACOS,
+            0x4E => Self::ATAN,
+
+            0x4F => Self::SEX,
+
             _ => panic!("Error - value does not correspond to an instruction!")
         }
     }
 }
                         // Instruction, param count length in bytes - used by the VM to determine jumps and different size params (like 32 bit and so on)
-pub const OPCODE_TABLE: [(Instructions, u8); 70] = [
+pub const OPCODE_TABLE: [(Instructions, u8); 80] = [
     (Instructions::HLT, 0),
     (Instructions::PSH, 4),
     (Instructions::POP, 1),
@@ -324,4 +338,18 @@ pub const OPCODE_TABLE: [(Instructions, u8); 70] = [
     (Instructions::GTF, 3),
 
     (Instructions::PSHR, 1),
+
+    (Instructions::REC, 2),
+    (Instructions::SQRT, 2),
+    (Instructions::RND, 2),
+
+    (Instructions::SIN, 2),
+    (Instructions::COS, 2),
+    (Instructions::TAN, 2),
+
+    (Instructions::ASIN, 2),
+    (Instructions::ACOS, 2),
+    (Instructions::ATAN, 2),
+
+    (Instructions::SEX, 3),
 ];

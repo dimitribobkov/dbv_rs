@@ -114,4 +114,28 @@
     geq f_r_{reg_a: register}, f_r_{reg_b: register}, f_r_{reg_c: register} => 0x42 @ reg_a`8 @ reg_b`8 @ reg_c`8 ; if reg_a >= reg_b, reg_c = 1 else reg_c = 0
     lt f_r_{reg_a: register}, f_r_{reg_b: register}, f_r_{reg_c: register}  => 0x43 @ reg_a`8 @ reg_b`8 @ reg_c`8 ; if reg_a < reg_b, reg_c = 1 else reg_c = 0
     gt f_r_{reg_a: register}, f_r_{reg_b: register}, f_r_{reg_c: register}  => 0x44 @ reg_a`8 @ reg_b`8 @ reg_c`8 ; if reg_a > reg_b, reg_c = 1 else reg_c = 0
+
+    rec f_r_{reg_a: register}, f_r_{reg_b: register}                        => 0x46 @ reg_a`8 @ reg_b`8           ; Store the reciprocal of reg_b into reg_a
+    sqrt f_r_{reg_a: register}, f_r_{reg_b: register}                       => 0x47 @ reg_a`8 @ reg_b`8           ; Store the square root of reg_b into reg_a
+    rnd f_r_{reg_a: register}, f_r_{reg_b: register}                        => 0x48 @ reg_a`8 @ reg_b`8           ; Store the rounded value of reg_b into reg_a
+
+    sin f_r_{reg_a: register}, f_r_{reg_b: register}                        => 0x49 @ reg_a`8 @ reg_b`8           ; Store the sine of reg_b into reg_a
+    cos f_r_{reg_a: register}, f_r_{reg_b: register}                        => 0x4A @ reg_a`8 @ reg_b`8           ; Store the cosine of reg_b into reg_a
+    tan f_r_{reg_a: register}, f_r_{reg_b: register}                        => 0x4B @ reg_a`8 @ reg_b`8           ; Store the tangent of reg_b into reg_a
+
+    asin f_r_{reg_a: register}, f_r_{reg_b: register}                       => 0x4C @ reg_a`8 @ reg_b`8           ; Store the arcsine of reg_b into reg_a
+    acos f_r_{reg_a: register}, f_r_{reg_b: register}                       => 0x4D @ reg_a`8 @ reg_b`8           ; Store the arccosine of reg_b into reg_a
+    atan f_r_{reg_a: register}, f_r_{reg_b: register}                       => 0x4E @ reg_a`8 @ reg_b`8           ; Store the arctangent of reg_b into reg_a
+
+    sex {flag: u8}, {addr: u16}                                             => 0x4F @ flag @ addr                 ; Jumps to addr to handle exception if given flag is set. If this is not set, no exception will occur
 }   
+
+; Possible Exceptions
+;
+; Undefined Instruction: b0000_0001
+; Reading/writing to invalid addr: b0000_0010
+; Prefetch Abord: b0000_0100
+; 
+; (fp) NaN (caused if result has no value): b0000_1000
+; (fp) divide by zero: b0001_0000
+; (fp) denormal: b0010_0000

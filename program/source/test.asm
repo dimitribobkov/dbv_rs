@@ -37,18 +37,16 @@ main:
     load f_r_c, 0
     load f_r_d, 0
 
-    div f_r_e, f_r_c, f_r_d
+    ;sex 0b0000_1000, handle_zero_exception
 
-    sw 0xFFE0, f_r_e
+    div f_r_c, f_r_c, f_r_d
 
-    load f_r_f, 5
+    load f_r_f, 0x4698522d
     sw 0xFFE1, f_r_f
 
-    lw f_r_c, 0xFFE0
     lw f_r_d, 0xFFE1
 
-    ;move f_r_d, f_r_e
-    
+    tan f_r_b, f_r_b
 
     ; Halt!
 
@@ -65,4 +63,8 @@ add_nums:
 
 test_floating_point_jumps:
     load f_r_f, 0x4698522d
+    ret
+
+handle_zero_exception:
+    load f_r_c, 0x0
     ret

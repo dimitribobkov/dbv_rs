@@ -314,6 +314,11 @@ impl VirtualMachine{
             },
 
             Instructions::DIVF => {
+                // Set exception if dividing by 0
+                if self.registers.get_f_register(params[2] as usize) == 0.0{
+                    self.registers.set_exception_flags(0b0000_1000);
+                }
+
                 let value = self.registers.get_f_register(params[1] as usize) / self.registers.get_f_register(params[2] as usize);
                 self.registers.set_f_register(params[0] as usize, value);
             },
@@ -334,17 +339,24 @@ impl VirtualMachine{
             },
 
             Instructions::DIVFI => {
+                // Set exception if dividing by 0
+                if (f32::from_bits((params[2] << 24 | params[3] << 16 | params[4] << 8 | params[5]) as u32)) == 0.0{
+                    self.registers.set_exception_flags(0b0000_1000);
+                }
+
                 let value = self.registers.get_f_register(params[1] as usize) / f32::from_bits((params[2] << 24 | params[3] << 16 | params[4] << 8 | params[5]) as u32);
                 self.registers.set_f_register(params[0] as usize, value);
             },
 
             Instructions::LDWF => {
                 let final_value = params[1] << 8 | params[2];
+                
                 self.registers.set_f_register(params[0] as usize, f32::from_bits(self.memory.read_word(final_value as usize)));
             },
             Instructions::SDWF => {
                 let final_value = params[0] << 8 | params[1];
-                self.memory.write_word(final_value as usize, self.registers.get_f_register(params[2] as usize) as u32);
+                let data_as_int: u32 = unsafe { std::mem::transmute(self.registers.get_f_register(params[2] as usize)) };
+                self.memory.write_word(final_value as usize, data_as_int);
             },
 
             Instructions::IFF => {
@@ -484,9 +496,79 @@ impl VirtualMachine{
                 self.memory.push_to_stack(value, self.registers.stack_pointer);
             },
 
+            Instructions::REC => {
+                self.registers.set_f_register(params[0] as usize, self.registers.get_f_register(params[1] as usize).recip());
+            },
+
+            Instructions::SQRT => {
+                self.registers.set_f_register(params[0] as usize, self.registers.get_f_register(params[1] as usize).sqrt());
+            },
+
+            Instructions::RND => {
+                self.registers.set_f_register(params[0] as usize, self.registers.get_f_register(params[1] as usize).round());
+            },
+
+            Instructions::SIN => {
+                self.registers.set_f_register(params[0] as usize, self.registers.get_f_register(params[1] as usize).sin());
+            },
+
+            Instructions::COS => {
+                self.registers.set_f_register(params[0] as usize, self.registers.get_f_register(params[1] as usize).cos());
+            },
+
+            Instructions::TAN => {
+                self.registers.set_f_register(params[0] as usize, self.registers.get_f_register(params[1] as usize).tan());
+            },
+
+            Instructions::ASIN => {
+                self.registers.set_f_register(params[0] as usize, self.registers.get_f_register(params[1] as usize).asin());
+            },
+
+            Instructions::ACOS => {
+                self.registers.set_f_register(params[0] as usize, self.registers.get_f_register(params[1] as usize).acos());
+            },
+
+            Instructions::ATAN => {
+                self.registers.set_f_register(params[0] as usize, self.registers.get_f_register(params[1] as usize).atan());
+            },
+
+            Instructions::SEX => {
+                let flag = params[0] as u8;
+                let addr = (params[1] as usize) << 8 | params[2] as usize;
+                self.registers.set_exception_register(flag, addr);
+            },
+
             _ => {
-                println!("Warning: instruction {:?} has not been implemented!", instruction);
+                println!("Error: instruction {:?} has not been implemented!", instruction);
+                self.registers.set_exception_flags(0b0000_0001);
             }
+        }
+
+        // Exception handling - the lower the byte, the more important it is
+        if self.registers.get_exception_flags() != 0{
+            let mut handled = false;
+            for i in 0..7{
+                let bit = self.registers.get_exception_flags() & (1 << i);
+                if bit != 0{
+                    let reg = self.registers.get_exception_register(bit);
+                    if !reg.1{ // If no handler is set, just continue
+                        continue;
+                    }
+
+                    self.handle_jump(reg.0 as usize);
+                    self.has_jumped = true;
+                    handled = true;
+                    break;
+                }
+                
+            }
+            if !handled{
+                eprintln!("Error: Exception not handled! (Flag: {:#010b})", self.registers.get_exception_flags());
+                panic!("Exception not handled");
+            }
+
+            self.registers.reset_exception_flags();
+            
         }
     }
 
