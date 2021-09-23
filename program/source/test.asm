@@ -37,7 +37,7 @@ main:
     load f_r_c, 0
     load f_r_d, 0
 
-    ;sex 0b0000_1000, handle_zero_exception
+    sex 0b0000_1000, handle_zero_exception ; exception handling - here, we trigger a NaN exception
 
     div f_r_c, f_r_c, f_r_d
 
