@@ -78,8 +78,8 @@ impl Registers{
 
     /* Exception register */
 
-    pub fn set_exception_register(&mut self, flag: u8, value: usize){
-        let v = is_bit_set(flag);
+    pub fn set_exception_register(&mut self, flag: Exceptions, value: usize){
+        let v = is_bit_set(flag as u8);
         if v != -1{
             self.exception_register[v as usize] = (value, true);
         }else{
@@ -87,8 +87,8 @@ impl Registers{
         }
     }
 
-    pub fn get_exception_register(&self, flag: u8) -> (usize, bool){
-        let v = is_bit_set(flag);
+    pub fn get_exception_register(&self, flag: Exceptions) -> (usize, bool){
+        let v = is_bit_set(flag as u8);
         if v != -1{
             return self.exception_register[v as usize];
         }else{
@@ -100,8 +100,8 @@ impl Registers{
 
     /* Exception flags */
 
-    pub fn set_exception_flags(&mut self, value: u8){
-        self.exception_flags |= value;
+    pub fn set_exception_flags(&mut self, value: Exceptions){
+        self.exception_flags |= value as u8;
     }
 
     pub fn get_exception_flags(&self) -> u8{
@@ -131,4 +131,50 @@ fn is_bit_set(b: u8) -> i8
         }
     }
     return -1;
+}
+
+/// # Exception flags
+/// 
+/// Contains the flags for the exception register as an enum for easy access.
+pub enum Exceptions{
+    /// DENORMAL - The floating point number is too small to be represented as a normal number
+    DENORMAL = 0b0010_0000,
+    /// ZERO_DIVIDE - The floating point number is zero and a divide by zero was attempted
+    ZERO_DIVIDE = 0b0001_0000,
+    /// NAN - The floating point number is not a number
+    NAN = 0b0000_1000,
+
+    /// PREFETCH_ABORT - The instruction is attempting to execute code not in the memory space
+    PREFETCH_ABORT = 0b0000_0100,
+    /// INVALID_ACCESS - The program attempted to access an invalid address in memory
+    INVALID_ACCESS = 0b0000_0010,
+    /// INVALID_OPERATION - The instruction does not exist or is invalid
+    INVALID_OPERATION = 0b0000_0001,
+}
+
+impl From<u8> for Exceptions{
+    fn from(b: u8) -> Self{
+        match b{
+            0b0010_0000 => Exceptions::DENORMAL,
+            0b0001_0000 => Exceptions::ZERO_DIVIDE,
+            0b0000_1000 => Exceptions::NAN,
+            0b0000_0100 => Exceptions::PREFETCH_ABORT,
+            0b0000_0010 => Exceptions::INVALID_ACCESS,
+            0b0000_0001 => Exceptions::INVALID_OPERATION,
+            _ => Exceptions::INVALID_OPERATION,
+        }
+    }
+}
+
+impl From<Exceptions> for u8{
+    fn from(e: Exceptions) -> Self{
+        match e{
+            Exceptions::DENORMAL => 0b0010_0000,
+            Exceptions::ZERO_DIVIDE => 0b0001_0000,
+            Exceptions::NAN => 0b0000_1000,
+            Exceptions::PREFETCH_ABORT => 0b0000_0100,
+            Exceptions::INVALID_ACCESS => 0b0000_0010,
+            Exceptions::INVALID_OPERATION => 0b0000_0001,
+        }
+    }
 }

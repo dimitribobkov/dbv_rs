@@ -5,7 +5,7 @@ mod virtual_machine;
 
 use instructions::{Instructions, OPCODE_TABLE};
 use memory::Memory;
-use registers::Registers;
+use registers::{Registers, Exceptions};
 use virtual_machine::VirtualMachine;
 
 use std::io::{Read, Write};

@@ -37,14 +37,16 @@ main:
     load f_r_c, 0
     load f_r_d, 0
 
-    ;sex 0b0000_1000, handle_zero_exception
-
+    sex 0b0001_0000, handle_zero_exception ; Exception Handling (we handle zero exception which is when the 4th byte is set). This is called when an attempt is made to divide by 0.
+    sex 0b0000_1000, handle_nan_exception 
+    
     div f_r_c, f_r_c, f_r_d
 
     load f_r_f, 0x4698522d
     sw 0xFFE1, f_r_f
 
     lw f_r_d, 0xFFE1
+    lw f_r_e, 0xFFE1
 
     tan f_r_b, f_r_b
 
@@ -68,3 +70,7 @@ test_floating_point_jumps:
 handle_zero_exception:
     load f_r_c, 0x0
     ret
+
+handle_nan_exception:
+    ret
+

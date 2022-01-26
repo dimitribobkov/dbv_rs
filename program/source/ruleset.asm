@@ -134,7 +134,7 @@
 ;
 ; Undefined Instruction: b0000_0001
 ; Reading/writing to invalid addr: b0000_0010
-; Prefetch Abord: b0000_0100
+; Prefetch Abort: b0000_0100
 ; 
 ; (fp) NaN (caused if result has no value): b0000_1000
 ; (fp) divide by zero: b0001_0000

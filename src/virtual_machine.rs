@@ -1,4 +1,4 @@
-use crate::{Instructions, Memory, OPCODE_TABLE, Registers};
+use crate::{Instructions, Memory, OPCODE_TABLE, Registers, Exceptions};
 
 use std::fs::read;
 
@@ -300,23 +300,46 @@ impl VirtualMachine{
 
             Instructions::ADDF => {
                 let value = self.registers.get_f_register(params[1] as usize) + self.registers.get_f_register(params[2] as usize);
+                
+                // Set exception flag if the result is NaN
+                if value.is_nan() {
+                    self.registers.set_exception_flags(Exceptions::NAN);
+                }
+                
                 self.registers.set_f_register(params[0] as usize, value);
             },
 
             Instructions::SUBF => {
                 let value = self.registers.get_f_register(params[1] as usize) - self.registers.get_f_register(params[2] as usize);
+                
+                // Set exception flag if the result is NaN
+                if value.is_nan() {
+                    self.registers.set_exception_flags(Exceptions::NAN);
+                }
+
                 self.registers.set_f_register(params[0] as usize, value);
             },
 
             Instructions::MULF => {
                 let value = self.registers.get_f_register(params[1] as usize) * self.registers.get_f_register(params[2] as usize);
+                
+                // Set exception flag if the result is NaN
+                if value.is_nan() {
+                    self.registers.set_exception_flags(Exceptions::NAN);
+                }
+                
                 self.registers.set_f_register(params[0] as usize, value);
             },
 
             Instructions::DIVF => {
                 // Set exception if dividing by 0
                 if self.registers.get_f_register(params[2] as usize) == 0.0{
-                    self.registers.set_exception_flags(0b0000_1000);
+                    self.registers.set_exception_flags(Exceptions::ZERO_DIVIDE);
+                }
+
+                // Set exception if NaN
+                if self.registers.get_f_register(params[1] as usize).is_nan() || self.registers.get_f_register(params[2] as usize).is_nan(){
+                    self.registers.set_exception_flags(Exceptions::NAN);
                 }
 
                 let value = self.registers.get_f_register(params[1] as usize) / self.registers.get_f_register(params[2] as usize);
@@ -325,26 +348,51 @@ impl VirtualMachine{
             
             Instructions::ADDFI => {
                 let value = self.registers.get_f_register(params[1] as usize) + f32::from_bits((params[2] << 24 | params[3] << 16 | params[4] << 8 | params[5]) as u32);
+                
+                // Set exception flag if the result is NaN
+                if value.is_nan() {
+                    self.registers.set_exception_flags(Exceptions::NAN);
+                }
+                
                 self.registers.set_f_register(params[0] as usize, value);
             },
 
             Instructions::SUBFI => {
                 let value = self.registers.get_f_register(params[1] as usize) - f32::from_bits((params[2] << 24 | params[3] << 16 | params[4] << 8 | params[5]) as u32);
+               
+                // Set exception flag if the result is NaN
+                if value.is_nan() {
+                    self.registers.set_exception_flags(Exceptions::NAN);
+                }
+               
                 self.registers.set_f_register(params[0] as usize, value);
             },
 
             Instructions::MULFI => {
                 let value = self.registers.get_f_register(params[1] as usize) * f32::from_bits((params[2] << 24 | params[3] << 16 | params[4] << 8 | params[5]) as u32);
+                
+                // Set exception flag if the result is NaN
+                if value.is_nan() {
+                    self.registers.set_exception_flags(Exceptions::NAN);
+                }
+                
                 self.registers.set_f_register(params[0] as usize, value);
             },
 
             Instructions::DIVFI => {
                 // Set exception if dividing by 0
                 if (f32::from_bits((params[2] << 24 | params[3] << 16 | params[4] << 8 | params[5]) as u32)) == 0.0{
-                    self.registers.set_exception_flags(0b0000_1000);
+                    self.registers.set_exception_flags(Exceptions::ZERO_DIVIDE);
                 }
+                
 
                 let value = self.registers.get_f_register(params[1] as usize) / f32::from_bits((params[2] << 24 | params[3] << 16 | params[4] << 8 | params[5]) as u32);
+                
+                // Set exception flag if the result is NaN
+                if value.is_nan() {
+                    self.registers.set_exception_flags(Exceptions::NAN);
+                }
+                
                 self.registers.set_f_register(params[0] as usize, value);
             },
 
@@ -361,6 +409,12 @@ impl VirtualMachine{
 
             Instructions::IFF => {
                 let value = params[1] << 24 | params[2] << 16 | params[3] << 8 | params[4];
+
+                // Set exception flag if the result is NaN
+                if f32::from_bits(value as u32).is_nan() {
+                    self.registers.set_exception_flags(Exceptions::NAN);
+                }
+
                 if self.registers.get_f_register(params[0] as usize) == f32::from_bits(value as u32){
                     let final_value = (params[5] << 8 | params[6]) as usize;
 
@@ -369,6 +423,12 @@ impl VirtualMachine{
             },
             Instructions::IFNF => {
                 let value = params[1] << 24 | params[2] << 16 | params[3] << 8 | params[4];
+
+                // Set exception flag if the result is NaN
+                if f32::from_bits(value as u32).is_nan() {
+                    self.registers.set_exception_flags(Exceptions::NAN);
+                }
+
                 if self.registers.get_f_register(params[0] as usize) != f32::from_bits(value as u32){
                     let final_value = (params[5] << 8 | params[6]) as usize;
 
@@ -378,6 +438,12 @@ impl VirtualMachine{
 
             Instructions::IFRF => {
                 let value = params[1] << 24 | params[2] << 16 | params[3] << 8 | params[4];
+
+                // Set exception flag if the result is NaN
+                if f32::from_bits(value as u32).is_nan() {
+                    self.registers.set_exception_flags(Exceptions::NAN);
+                }
+
                 if self.registers.get_f_register(params[0] as usize) == f32::from_bits(value as u32){
                     let final_value = params[5] as i8 as isize;
 
@@ -386,6 +452,11 @@ impl VirtualMachine{
             },
             Instructions::IFNRF => {
                 let value = params[1] << 24 | params[2] << 16 | params[3] << 8 | params[4];
+
+                // Set exception flag if the result is NaN
+                if f32::from_bits(value as u32).is_nan() {
+                    self.registers.set_exception_flags(Exceptions::NAN);
+                }
 
                 if self.registers.get_f_register(params[0] as usize) != f32::from_bits(value as u32){
                     let final_value = params[5] as i8 as isize;
@@ -498,49 +569,86 @@ impl VirtualMachine{
 
             Instructions::REC => {
                 self.registers.set_f_register(params[0] as usize, self.registers.get_f_register(params[1] as usize).recip());
+
+                if self.registers.get_f_register(params[0] as usize).is_nan() {
+                    self.registers.set_exception_flags(Exceptions::NAN);
+                }
             },
 
             Instructions::SQRT => {
                 self.registers.set_f_register(params[0] as usize, self.registers.get_f_register(params[1] as usize).sqrt());
+
+                if self.registers.get_f_register(params[0] as usize).is_nan() {
+                    self.registers.set_exception_flags(Exceptions::NAN);
+                }
             },
 
             Instructions::RND => {
                 self.registers.set_f_register(params[0] as usize, self.registers.get_f_register(params[1] as usize).round());
+
+                if self.registers.get_f_register(params[0] as usize).is_nan() {
+                    self.registers.set_exception_flags(Exceptions::NAN);
+                }
             },
 
             Instructions::SIN => {
                 self.registers.set_f_register(params[0] as usize, self.registers.get_f_register(params[1] as usize).sin());
+
+                if self.registers.get_f_register(params[0] as usize).is_nan() {
+                    self.registers.set_exception_flags(Exceptions::NAN);
+                }
             },
 
             Instructions::COS => {
                 self.registers.set_f_register(params[0] as usize, self.registers.get_f_register(params[1] as usize).cos());
+
+                if self.registers.get_f_register(params[0] as usize).is_nan() {
+                    self.registers.set_exception_flags(Exceptions::NAN);
+                }
             },
 
             Instructions::TAN => {
                 self.registers.set_f_register(params[0] as usize, self.registers.get_f_register(params[1] as usize).tan());
+
+                if self.registers.get_f_register(params[0] as usize).is_nan() {
+                    self.registers.set_exception_flags(Exceptions::NAN);
+                }
             },
 
             Instructions::ASIN => {
                 self.registers.set_f_register(params[0] as usize, self.registers.get_f_register(params[1] as usize).asin());
+
+                if self.registers.get_f_register(params[0] as usize).is_nan() {
+                    self.registers.set_exception_flags(Exceptions::NAN);
+                }
             },
 
             Instructions::ACOS => {
                 self.registers.set_f_register(params[0] as usize, self.registers.get_f_register(params[1] as usize).acos());
+
+                if self.registers.get_f_register(params[0] as usize).is_nan() {
+                    self.registers.set_exception_flags(Exceptions::NAN);
+                }
             },
 
             Instructions::ATAN => {
                 self.registers.set_f_register(params[0] as usize, self.registers.get_f_register(params[1] as usize).atan());
+
+                if self.registers.get_f_register(params[0] as usize).is_nan() {
+                    self.registers.set_exception_flags(Exceptions::NAN);
+                }
             },
 
             Instructions::SEX => {
                 let flag = params[0] as u8;
-                let addr = (params[1] as usize) << 8 | params[2] as usize;
-                self.registers.set_exception_register(flag, addr);
+                let addr = (params[1] as u16) << 8 | params[2] as u16;
+                self.registers.set_exception_register(Exceptions::from(flag), addr as usize);
+                println!("Exception ({:#010b}) at address {:#x?}", flag, addr);
             },
 
             _ => {
                 println!("Error: instruction {:?} has not been implemented!", instruction);
-                self.registers.set_exception_flags(0b0000_0001);
+                self.registers.set_exception_flags(Exceptions::INVALID_OPERATION);
             }
         }
 
@@ -549,8 +657,9 @@ impl VirtualMachine{
             let mut handled = false;
             for i in 0..7{
                 let bit = self.registers.get_exception_flags() & (1 << i);
+                // Check the bit is set. If it is, handle the exception. Else, continue
                 if bit != 0{
-                    let reg = self.registers.get_exception_register(bit);
+                    let reg = self.registers.get_exception_register(Exceptions::from(bit));
                     if !reg.1{ // If no handler is set, just continue
                         continue;
                     }
